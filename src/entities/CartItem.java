@@ -1,11 +1,16 @@
 package entities;
 
-public class ListItem {
+public class CartItem {
+    private String cartItemId;
     private String productId;
     private int number;
 //    constructor
-    public ListItem(String productId, int number)
+    public CartItem(String cartItemId,String productId, int number)
     {
+        if(cartItemId == null)
+        {
+            throw new NullPointerException("CartItem ID cannot be null");
+        }
         if(productId == null)
         {
             throw new NullPointerException("Product ID in ListItem cannot be null");

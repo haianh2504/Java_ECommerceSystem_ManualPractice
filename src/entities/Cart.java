@@ -7,9 +7,9 @@ import java.util.List;
 public class Cart {
     private String cartId;
     private String userId;
-    private List<ListItem> listItems;
+    private List<CartItem> cartItems;
 //    constructor
-    public Cart(String cartId, String userId, List<ListItem> listItems) // with list Items
+    public Cart(String cartId, String userId, List<CartItem> cartItems) // with list Items
     {
         if(cartId == null)
         {
@@ -19,13 +19,13 @@ public class Cart {
         {
             throw new NullPointerException("User ID in cart cannot be null");
         }
-        if(listItems == null)
+        if(cartItems == null)
         {
             throw new NullPointerException("ListItems input cannot be null");
         }
         this.cartId = cartId;
         this.userId = userId;
-        this.listItems = Collections.unmodifiableList(new ArrayList<>(listItems));
+        this.cartItems = Collections.unmodifiableList(new ArrayList<>(cartItems));
     }
     public Cart(String cartId, String userId) // without list Items
     {
@@ -40,7 +40,7 @@ public class Cart {
         // also need to check if userID exists
         this.cartId = cartId;
         this.userId = userId;
-        listItems = new ArrayList<>();
+        cartItems = new ArrayList<>();
     }
 //    getters
     public final String getCartId()
@@ -51,8 +51,8 @@ public class Cart {
     {
         return this.userId;
     }
-    public List<ListItem> getListItems() {
-        return Collections.unmodifiableList(new ArrayList<>(this.listItems));
+    public List<CartItem> getListItems() {
+        return Collections.unmodifiableList(new ArrayList<>(this.cartItems));
     }
 //
 }
