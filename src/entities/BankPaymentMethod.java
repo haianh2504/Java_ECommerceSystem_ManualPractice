@@ -14,4 +14,5 @@ public class BankPaymentMethod extends PaymentMethod{
         this.maskedIdentifier = Objects.requireNonNull(maskedIdentifier, "MaskedIdentifier cannot be null");
         if(maskedIdentifier.isBlank()) throw new IllegalArgumentException("MaskedIdentifier cannot be blank");
     }
+//    getter
 }

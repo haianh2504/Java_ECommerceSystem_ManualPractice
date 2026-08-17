@@ -7,23 +7,23 @@ import java.math.BigDecimal;
 public interface CartItemService {
 
 //    add new cartItem in cart
-    public CartItem addNewCartItem(String productId, int number);
+    public void addNewCartItem(String cartId,String productId, int number);
 
 //    delete cartItem in cart
-    public boolean deleteCartItem(String cartId, String cartItemId);
+    public boolean deleteCartItem(String cartItemId);
 
 //    delete all cartItems in cart
-    public boolean deleteAllCartItems(String cartId);
+    public void deleteAllCartItems(String cartId);
 
 // find CartItem in cart
-    public CartItem findCartItem(String cartItemId);
-
-//    change quantity in cartItem
-    public boolean changeQuantity(String cartId,String cartItemId, int newNumber);
+    public CartItem findCartItem(String cartId,String cartItemId);
 
 //    increase quantity by one in cartItem
-    public boolean changeQuantityByOne(String cartId, String cartItemId);
+    public void changeQuantityByOne(String cartItemId);
 
 //    calculate total price for a cartItem
     public BigDecimal getTotalPriceByCartItem(String cartId, String cartItemId);
+
+//    update Item quantity
+    public void updateItemQuantity(String cartItemId, int newQuantity);
 }

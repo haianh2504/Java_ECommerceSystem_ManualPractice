@@ -20,8 +20,12 @@ public class CartItem {
         {
             throw new IllegalArgumentException("The number in ListItem is invalid");
         }
+        this.cartItemId = cartItemId;
+        this.productId = productId;
+        this.number = number;
     }
 //    getters
+    public final String getCartItemId(){return this.cartItemId;}
     public final String getProductId()
     {
         return this.productId;
