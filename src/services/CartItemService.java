@@ -5,6 +5,8 @@ import entities.CartItem;
 import java.math.BigDecimal;
 
 public interface CartItemService {
+//    check before add or change the quantity
+    public boolean validateItemStock(String productId, int quantity);
 
 //    add new cartItem in cart
     public void addNewCartItem(String cartId,String productId, int number);

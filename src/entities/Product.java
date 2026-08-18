@@ -10,6 +10,7 @@ public abstract class Product {
     private ProductName name;
     private int stockQuantity;
     private BigDecimal basePrice;
+    private ProductStatus status;
     private final ProductType productType;
 //    constructor
     @Builder
@@ -74,6 +75,4 @@ public abstract class Product {
         this.basePrice = basePrice;
         return this;
     }
-//    get total price
-    public abstract BigDecimal getFinalPrice();
 }

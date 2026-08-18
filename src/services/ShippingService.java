@@ -1,6 +1,10 @@
 package services;
 
+import entities.PhysicalProduct;
+
+import java.math.BigDecimal;
+
 public interface ShippingService {
     // calculating
-    public void calculateShippingFee();
+    public BigDecimal calculateShippingFee(PhysicalProduct pp);
 }

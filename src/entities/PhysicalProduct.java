@@ -2,9 +2,8 @@ package entities;
 import services.ShippingService;
 import java.math.BigDecimal;
 
-public class PhysicalProduct extends Product implements ShippingService {
+public class PhysicalProduct extends Product{
     private  static BigDecimal PRICE_PER_WEIGHT = new BigDecimal("5"); // dollars
-    private BigDecimal shippingFee;
     private BigDecimal weight; // kg
 //    constructor
     public PhysicalProduct(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductType productType, BigDecimal weight)
@@ -32,14 +31,11 @@ public class PhysicalProduct extends Product implements ShippingService {
         this.weight = weight;
     }
 //    calculate shipping fee
-    @Override
     public void calculateShippingFee()
     {
         // fee = weight x PRICE_PER_WEIGHT
-        this.shippingFee = this.weight.multiply(this.PRICE_PER_WEIGHT);
     }
 //    calculate total price
-    @Override
     public BigDecimal getFinalPrice()
     {
         return this.getBasePrice().add(this.shippingFee);
