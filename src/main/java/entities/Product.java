@@ -3,6 +3,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 public abstract class Product {
@@ -12,6 +14,7 @@ public abstract class Product {
     private BigDecimal basePrice;
     private ProductStatus status;
     private final ProductType productType;
+    private Instant createdAt;
 //    constructor
     @Builder
     public Product(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductType productType)
@@ -43,8 +46,19 @@ public abstract class Product {
         this.stockQuantity = stockQuantity;
         this.basePrice = basePrice;
         this.productType = productType;
+        this.createdAt = Instant.now();
     }
-//    setters
+//    getters
+    public final String getId(){return this.id;}
+    public final PersonName getName(){return this.name;}
+    public final int getQuantity(){return this.stockQuantity;}
+    public final BigDecimal getBasePrice() {
+        return basePrice;
+    }
+    public final ProductStatus getStatus(){return this.status;}
+    public final ProductType getType(){return this.productType;}
+
+    //    setters
     public Product changeProductName(ProductName name)
     {
         if(name == null)

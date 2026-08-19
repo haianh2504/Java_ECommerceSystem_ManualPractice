@@ -33,8 +33,9 @@ public class PersonName {
         }
         this.name = name.trim();
     }
-//    getter
-    public String getName()
+//    toString
+    @Override
+    public String toString()
     {
         return this.name;
     }

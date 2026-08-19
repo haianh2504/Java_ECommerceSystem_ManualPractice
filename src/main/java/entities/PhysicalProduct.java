@@ -1,5 +1,4 @@
 package entities;
-import services.ShippingService;
 import java.math.BigDecimal;
 
 public class PhysicalProduct extends Product{
@@ -18,6 +17,15 @@ public class PhysicalProduct extends Product{
         }
         this.weight = weight;
     }
+//    getters
+    public final BigDecimal getWeight()
+    {
+        return this.weight;
+    }
+    public static final BigDecimal getPricePerWeight()
+    {
+        return PRICE_PER_WEIGHT;
+    }
 //    setter
     public void setWeight(BigDecimal weight)
     {
@@ -29,16 +37,6 @@ public class PhysicalProduct extends Product{
             throw new IllegalArgumentException("Invalid Weight product");
         }
         this.weight = weight;
-    }
-//    calculate shipping fee
-    public void calculateShippingFee()
-    {
-        // fee = weight x PRICE_PER_WEIGHT
-    }
-//    calculate total price
-    public BigDecimal getFinalPrice()
-    {
-        return this.getBasePrice().add(this.shippingFee);
     }
 
 }

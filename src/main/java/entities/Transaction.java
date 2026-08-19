@@ -2,7 +2,6 @@ package entities;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Objects;
 
 public record Transaction(
         String transactionId,
