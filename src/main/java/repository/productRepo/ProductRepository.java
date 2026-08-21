@@ -2,12 +2,14 @@ package repository.productRepo;
 
 import entities.Product;
 
+import java.util.Optional;
+
 public interface ProductRepository {
 //    Save Product
     public void save(Product product);
 
 //    find product by Id
-    public Product findById(String productId);
+    public Optional<Product> findById(String productId);
 
 
 }

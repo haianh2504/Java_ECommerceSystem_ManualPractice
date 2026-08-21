@@ -5,6 +5,7 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 public abstract class Product {
@@ -15,42 +16,45 @@ public abstract class Product {
     private ProductStatus status;
     private final ProductType productType;
     private Instant createdAt;
-//    constructor
+//    constructor for new product
     @Builder
-    public Product(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductType productType)
+    public Product(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType)
     {
-        if(id == null)
-        {
-            throw new NullPointerException("ID product cannot be null");
-        }
-        if(name == null)
-        {
-            throw new NullPointerException("Product Name cannot be null");
-        }
-        if(basePrice == null)
-        {
-            throw new NullPointerException("Product base price cannot be null");
-        }
-        if(productType == null)
-        {
-            throw new NullPointerException("Product type cannot be null");
-        }
+        this.id = id;
+        this.name = name;
         if(stockQuantity < 0){
             throw new IllegalArgumentException("Stock quantity cannot be negative");
         }
+        this.stockQuantity = stockQuantity;
+        this.basePrice = Objects.requireNonNull(basePrice,"Product base price cannot be null");
         if(basePrice.compareTo(BigDecimal.ZERO) <= 0){
             throw new IllegalArgumentException("Product base price cannot be negative");
         }
+        this.status = Objects.requireNonNull(status,"Product status cannot be null");
+        this.productType = Objects.requireNonNull(productType,"Product type cannot be null");
+        this.createdAt = Instant.now();
+    }
+//    constructor to return product from database
+    @Builder
+    public Product(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType, Instant createdAt)
+    {
         this.id = id;
         this.name = name;
+        if(stockQuantity < 0){
+            throw new IllegalArgumentException("Stock quantity cannot be negative");
+        }
         this.stockQuantity = stockQuantity;
-        this.basePrice = basePrice;
-        this.productType = productType;
-        this.createdAt = Instant.now();
+        this.basePrice = Objects.requireNonNull(basePrice,"Product base price cannot be null");
+        if(basePrice.compareTo(BigDecimal.ZERO) <= 0){
+            throw new IllegalArgumentException("Product base price cannot be negative");
+        }
+        this.status = Objects.requireNonNull(status,"Product status cannot be null");
+        this.productType = Objects.requireNonNull(productType,"Product type cannot be null");
+        this.createdAt = Objects.requireNonNull(createdAt,"Timestampt createdAt cannot be null");
     }
 //    getters
     public final String getId(){return this.id;}
-    public final PersonName getName(){return this.name;}
+    public final ProductName getName(){return this.name;}
     public final int getQuantity(){return this.stockQuantity;}
     public final BigDecimal getBasePrice() {
         return basePrice;

@@ -23,3 +23,9 @@ ALTER TABLE users
 ALTER COLUMN created_at TYPE timestamptz,
     ALTER COLUMN created_at SET NOT NULL,
     ALTER COLUMN created_at SET DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE products
+ADD COLUMN weight NUMERIC(10,3);
+
+ALTER TABLE users
+ADD CONSTRAINT email UNIQUE (email);
