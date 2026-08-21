@@ -9,7 +9,7 @@ public interface ProductRepository {
     public void save(Product product);
 
 //    find product by Id
-    public Optional<Product> findById(String productId);
+    public Optional<Product> findById(Long productId);
 
 
 }

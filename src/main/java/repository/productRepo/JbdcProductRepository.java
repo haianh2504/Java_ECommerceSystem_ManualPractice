@@ -59,7 +59,7 @@ public final class JbdcProductRepository implements ProductRepository {
     }
 //    find product by id
     @Override
-    public Optional<Product> findById(String productId)
+    public Optional<Product> findById(Long productId)
     {
         String sql = """
                 SELECT
@@ -75,6 +75,8 @@ public final class JbdcProductRepository implements ProductRepository {
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
+            // gán id vào ?
+            ps.setLong(1, productId);
             // chạy lệnh SELECT
             ResultSet rs = ps.executeQuery();
             if(!rs.next())

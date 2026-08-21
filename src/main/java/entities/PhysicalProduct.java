@@ -6,7 +6,7 @@ public class PhysicalProduct extends Product{
     private static BigDecimal PRICE_PER_WEIGHT = new BigDecimal("5"); // dollars
     private BigDecimal weight; // kg
 //    constructor to create new one
-    public PhysicalProduct(String id, ProductName name, int stockQuantity, BigDecimal basePrice,ProductStatus status, ProductType productType, BigDecimal weight)
+    public PhysicalProduct(Long id, ProductName name, int stockQuantity, BigDecimal basePrice,ProductStatus status, ProductType productType, BigDecimal weight)
     {
         super(id,name,stockQuantity, basePrice, status,productType);
         if(weight == null)
@@ -20,7 +20,7 @@ public class PhysicalProduct extends Product{
     }
 
 //    constructor to return one from database
-public PhysicalProduct(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType, Instant createdAt, BigDecimal weight)
+public PhysicalProduct(Long id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType, Instant createdAt, BigDecimal weight)
 {
     super(id,name,stockQuantity, basePrice, status,productType, createdAt);
     if(weight == null)

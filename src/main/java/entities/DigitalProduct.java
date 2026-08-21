@@ -5,12 +5,12 @@ import java.time.Instant;
 
 public class DigitalProduct extends Product {
 //    constructor to create new one
-    public DigitalProduct(String id, ProductName name, int stockQuantity, BigDecimal basePrice,ProductStatus status, ProductType productType)
+    public DigitalProduct(Long id, ProductName name, int stockQuantity, BigDecimal basePrice,ProductStatus status, ProductType productType)
     {
         super(id,name,stockQuantity,basePrice,status,productType);
     }
 //    constructor to return one from database
-public DigitalProduct(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType, Instant createdAt)
+public DigitalProduct(Long id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType, Instant createdAt)
 {
     super(id,name,stockQuantity,basePrice,status,productType,createdAt);
 }

@@ -131,6 +131,8 @@ public final class JbdcUserRepository implements UserRepository{
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
+            // gán email vào ô ?
+            ps.setString(1, email.toString());
             // chạy lệnh SELECT
             ResultSet rs = ps.executeQuery();
             if(!rs.next()) return Optional.empty();

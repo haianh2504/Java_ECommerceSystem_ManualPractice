@@ -8,16 +8,16 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public abstract class Product {
-    private String id;
+    private Long id;
     private ProductName name;
     private int stockQuantity;
     private BigDecimal basePrice;
     private ProductStatus status;
     private final ProductType productType;
     private Instant createdAt;
-    protected Product(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType)
+    protected Product(Long id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType)
     {
-        this.id = id;
+        this.id = Objects.requireNonNull(id,"productId cannot be null");
         this.name = name;
         if(stockQuantity < 0){
             throw new IllegalArgumentException("Stock quantity cannot be negative");
@@ -32,9 +32,9 @@ public abstract class Product {
         this.createdAt = Instant.now();
     }
 //    constructor to return product from database
-    protected Product(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType, Instant createdAt)
+    protected Product(Long id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType, Instant createdAt)
     {
-        this.id = id;
+        this.id = Objects.requireNonNull(id,"productId cannot be null");
         this.name = name;
         if(stockQuantity < 0){
             throw new IllegalArgumentException("Stock quantity cannot be negative");
@@ -49,7 +49,7 @@ public abstract class Product {
         this.createdAt = Objects.requireNonNull(createdAt,"Timestampt createdAt cannot be null");
     }
 //    getters
-    public final String getId(){return this.id;}
+    public final Long getId(){return this.id;}
     public final ProductName getName(){return this.name;}
     public final int getQuantity(){return this.stockQuantity;}
     public final BigDecimal getBasePrice() {
