@@ -10,9 +10,9 @@ import java.sql.SQLException;
 
 public class DatabaseConnection {
     // Information for database connection
-    private static final String url = "jdbc:postgresql://localhost:5432/ecommerce";
-    private static final String username = "phanhaianh";
-    private static final String password = "haianh250420077";
+    private static final String url = System.getenv("DB_URL");
+    private static final String username = System.getenv("DB_USERNAME");
+    private static final String password = System.getenv("DB_PASSWORD");
 //    retrieve connection
     public static Connection getConnection()
     {

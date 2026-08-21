@@ -57,7 +57,7 @@ public final class JbdcUserRepository implements UserRepository{
     }
 //    find user by id
     @Override
-    public Optional<User> findById(String id){
+    public Optional<User> findById(Long id){
         String sql = """
                 SELECT
                 name,
@@ -135,7 +135,7 @@ public final class JbdcUserRepository implements UserRepository{
             ResultSet rs = ps.executeQuery();
             if(!rs.next()) return Optional.empty();
             // lay thuoc tinh
-            String id = String.valueOf(rs.getLong("id"));
+            Long id = rs.getLong("id");
             PersonName name = new PersonName(rs.getString("name"));
             Email user_email = new Email(rs.getString("email"));
             UserRole role = UserRole.valueOf(rs.getString("role"));

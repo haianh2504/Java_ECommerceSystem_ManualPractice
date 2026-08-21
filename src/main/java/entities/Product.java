@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Getter
 public abstract class Product {
     private String id;
     private ProductName name;
@@ -16,9 +15,7 @@ public abstract class Product {
     private ProductStatus status;
     private final ProductType productType;
     private Instant createdAt;
-//    constructor for new product
-    @Builder
-    public Product(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType)
+    protected Product(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType)
     {
         this.id = id;
         this.name = name;
@@ -35,8 +32,7 @@ public abstract class Product {
         this.createdAt = Instant.now();
     }
 //    constructor to return product from database
-    @Builder
-    public Product(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType, Instant createdAt)
+    protected Product(String id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType, Instant createdAt)
     {
         this.id = id;
         this.name = name;
@@ -60,28 +56,27 @@ public abstract class Product {
         return basePrice;
     }
     public final ProductStatus getStatus(){return this.status;}
-    public final ProductType getType(){return this.productType;}
+    public final ProductType getProductType(){return this.productType;}
+    public final Instant getCreatedAt(){return this.createdAt;}
 
     //    setters
-    public Product changeProductName(ProductName name)
+    public void changeProductName(ProductName name)
     {
         if(name == null)
         {
             throw new NullPointerException("Product Name cannot be null");
         }
         this.name = name;
-        return this;
     }
-    public Product setStockQuantity(int newQuantity)
+    public void setStockQuantity(int newQuantity)
     {
         if(newQuantity < 0)
         {
             throw new IllegalArgumentException("Stock quantity cannot be negative");
         }
         this.stockQuantity = newQuantity;
-        return this;
     }
-    public Product setBasePrice(BigDecimal basePrice)
+    public void setBasePrice(BigDecimal basePrice)
     {
         if(basePrice == null)
         {
@@ -91,6 +86,5 @@ public abstract class Product {
             throw new IllegalArgumentException("Product base price cannot be negative");
         }
         this.basePrice = basePrice;
-        return this;
     }
 }

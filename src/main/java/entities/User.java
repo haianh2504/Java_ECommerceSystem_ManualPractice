@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.Objects;
 @Builder
 public final class User {
-    private String id;
+    private Long id;
     private PasswordHash passwordHash;
     private PersonName name;
     private PhoneNumber phoneNumber; // can add later
@@ -14,7 +14,7 @@ public final class User {
     private UserStatus status;
     private Instant createdAt;
     private static void validateBasicInfo(
-            String id,
+            Long id,
             PasswordHash passwordHash,
             PersonName name,
             Email email,
@@ -25,12 +25,9 @@ public final class User {
         Objects.requireNonNull(name, "User name cannot be null");
         Objects.requireNonNull(email,"User email cannot be null");
         Objects.requireNonNull(userRole, "User role cannot be null");
-        if (id.isBlank()) {
-            throw new IllegalArgumentException("User id cannot be blank");
-        }
     }
 //    constructor - full info
-    public User(String id,PasswordHash passwordHash,PersonName name,PhoneNumber phoneNumber, Email email, UserRole userRole)
+    public User(Long id,PasswordHash passwordHash,PersonName name,PhoneNumber phoneNumber, Email email, UserRole userRole)
     {
         validateBasicInfo(id,passwordHash,name,email,userRole);
         if(phoneNumber == null)
@@ -50,7 +47,7 @@ public final class User {
         this.createdAt = Instant.now();
     }
 //    constructor - not full info
-    public User(String id, PasswordHash passwordHash, PersonName name, Email email, UserRole userRole)
+    public User(Long id, PasswordHash passwordHash, PersonName name, Email email, UserRole userRole)
     {
         validateBasicInfo(id,passwordHash, name,email,userRole);
         this.id = id;
@@ -62,7 +59,7 @@ public final class User {
         this.createdAt = Instant.now();
     }
 //    constructor not full - SQL return
-public User(String id, PasswordHash passwordHash, PersonName name, Email email, UserRole userRole, UserStatus userStatus, Instant createdAt)
+public User(Long id, PasswordHash passwordHash, PersonName name, Email email, UserRole userRole, UserStatus userStatus, Instant createdAt)
 {
     validateBasicInfo(id,passwordHash, name,email,userRole);
     this.id = id;
@@ -74,7 +71,7 @@ public User(String id, PasswordHash passwordHash, PersonName name, Email email, 
     this.createdAt = Objects.requireNonNull(createdAt,"Timestamp createdAt cannot be null");
 }
 //    constructor - full info
-    public User(String id,PasswordHash passwordHash,PersonName name,PhoneNumber phoneNumber, Email email, UserRole userRole, UserStatus userStatus,Instant createdAt)
+    public User(Long id,PasswordHash passwordHash,PersonName name,PhoneNumber phoneNumber, Email email, UserRole userRole, UserStatus userStatus,Instant createdAt)
     {
         validateBasicInfo(id,passwordHash,name,email,userRole);
         if(phoneNumber == null)
@@ -95,7 +92,7 @@ public User(String id, PasswordHash passwordHash, PersonName name, Email email, 
     }
 
 //    getters
-    public final String getId()
+    public final Long getId()
     {
         return this.id;
     }
