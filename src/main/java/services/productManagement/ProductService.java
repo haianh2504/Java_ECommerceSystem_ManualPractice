@@ -1,4 +1,4 @@
-package services;
+package services.productManagement;
 
 import entities.Product;
 import entities.ProductName;

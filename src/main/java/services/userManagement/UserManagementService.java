@@ -4,17 +4,16 @@ import entities.*;
 
 public interface UserManagementService {
 //    create new User
-    public User createUser(Long id, PersonName name, UserRole userRole);
+    public User createUser(PasswordHash passwordHash, PersonName name, PhoneNumber phoneNumber, Email email, UserRole userRole);
 //    make status ACTIVE if have full info
-    public void activateUser(Long userId);
+    public void activateUser(Long userId,PhoneNumber phoneNumber);
 //    make status BANNED
-    public void banUser(Long userId);
 //    change Name
     public void changeUserName(Long userId, PersonName newName);
 //    change phoneNumber
-    public void changePhoneNumber(String userId, PhoneNumber newPhoneNumber);
+    public void changePhoneNumber(Long userId, PhoneNumber newPhoneNumber);
 //    change email
     public void changeEmail(Long userId, Email newEmail);
-//    change Role
-    public void adminAuthorize(Long userId);
+//    Admin authorize
+    public void promoteToAdmin(Long adminId,Long userId);
 }

@@ -14,22 +14,20 @@ public final class User {
     private UserStatus status;
     private Instant createdAt;
     private static void validateBasicInfo(
-            Long id,
             PasswordHash passwordHash,
             PersonName name,
             Email email,
             UserRole userRole
     ) {
-        Objects.requireNonNull(id, "User id cannot be null");
         Objects.requireNonNull(passwordHash, "User passwordHash cannot be null");
         Objects.requireNonNull(name, "User name cannot be null");
         Objects.requireNonNull(email,"User email cannot be null");
         Objects.requireNonNull(userRole, "User role cannot be null");
     }
 //    constructor - full info
-    public User(Long id,PasswordHash passwordHash,PersonName name,PhoneNumber phoneNumber, Email email, UserRole userRole)
+    public User(PasswordHash passwordHash,PersonName name,PhoneNumber phoneNumber, Email email, UserRole userRole)
     {
-        validateBasicInfo(id,passwordHash,name,email,userRole);
+        validateBasicInfo(passwordHash,name,email,userRole);
         if(phoneNumber == null)
         {
             throw new NullPointerException("User PhoneNumber cannot be null");
@@ -37,53 +35,30 @@ public final class User {
         else if(phoneNumber.phoneNumber().isBlank()){
             throw new IllegalArgumentException("User name cannot be blank");
         }
-        this.id = id;
+        // id có thể null -> postgreSQL tự generate
         this.name = name;
         this.passwordHash = passwordHash;
-        this.phoneNumber = phoneNumber;
+        if(phoneNumber == null)
+        {
+            this.status = UserStatus.PENDING;
+        }
+        else{
+            this.phoneNumber = phoneNumber;
+            this.status = UserStatus.ACTIVE;
+        }
         this.email = email;
         this.userRole = userRole;
-        this.status = UserStatus.ACTIVE;
         this.createdAt = Instant.now();
     }
-//    constructor - not full info
-    public User(Long id, PasswordHash passwordHash, PersonName name, Email email, UserRole userRole)
-    {
-        validateBasicInfo(id,passwordHash, name,email,userRole);
-        this.id = id;
-        this.passwordHash = passwordHash;
-        this.name = name;
-        this.email = email;
-        this.userRole = userRole;
-        this.status = UserStatus.PENDING;
-        this.createdAt = Instant.now();
-    }
-//    constructor not full - SQL return
-public User(Long id, PasswordHash passwordHash, PersonName name, Email email, UserRole userRole, UserStatus userStatus, Instant createdAt)
-{
-    validateBasicInfo(id,passwordHash, name,email,userRole);
-    this.id = id;
-    this.passwordHash = passwordHash;
-    this.name = name;
-    this.email = email;
-    this.userRole = userRole;
-    this.status = Objects.requireNonNull(userStatus,"User status cannot be null");
-    this.createdAt = Objects.requireNonNull(createdAt,"Timestamp createdAt cannot be null");
-}
-//    constructor - full info
+
+//    constructor - SQL return
     public User(Long id,PasswordHash passwordHash,PersonName name,PhoneNumber phoneNumber, Email email, UserRole userRole, UserStatus userStatus,Instant createdAt)
     {
-        validateBasicInfo(id,passwordHash,name,email,userRole);
-        if(phoneNumber == null)
-        {
-            throw new NullPointerException("User PhoneNumber cannot be null");
-        }
-        else if(phoneNumber.phoneNumber().isBlank()){
-            throw new IllegalArgumentException("User name cannot be blank");
-        }
-        this.id = id;
+        validateBasicInfo(passwordHash,name,email,userRole);
+        this.id = Objects.requireNonNull(id, "User id cannot be null");
         this.name = name;
         this.passwordHash = passwordHash;
+        // phoneNumber can be null
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.userRole = userRole;
@@ -124,13 +99,66 @@ public User(Long id, PasswordHash passwordHash, PersonName name, Email email, Us
     {
         return this.createdAt;
     }
-//    activate account
-    public void activate()
+//    add phoneNumber
+    private void addPhoneNumber(PhoneNumber phoneNumber)
     {
-        if (phoneNumber == null || email == null) {
-            throw new NullPointerException("phonenumber and email cannot be null");
-        }
-        this.status = UserStatus.ACTIVE;
+        if(this.phoneNumber != null) return;
+        this.phoneNumber = Objects.requireNonNull(phoneNumber,"PhoneNumber cannot be null");
     }
-//    ban account
+//    activate account
+    public void activate(PhoneNumber phoneNumber)
+    {
+        // Nếu đã có phone number
+        if(this.phoneNumber != null){
+            return;
+        }
+        try{
+            addPhoneNumber(phoneNumber);
+            this.status = UserStatus.ACTIVE;
+        }catch (NullPointerException e)
+        {
+            throw new RuntimeException("Error while activating user: " + e.getMessage(),e);
+        }
+    }
+//    change role
+    public void changeRole(UserRole newRole)
+    {
+        if(newRole == null)
+        {
+            throw new IllegalArgumentException("Role cannot be null");
+        }
+        if(this.status == UserStatus.BANNED)
+        {
+            throw new IllegalStateException("Banned user cannot change role");
+        }
+        this.userRole = newRole;
+    }
+//    change name
+    public void changeName(PersonName newName)
+    {
+        if(newName == null)
+        {
+            throw new NullPointerException("New username cannot be null");
+        }
+        this.name = newName;
+    }
+//    change phone number
+    public void changePhoneNumber(PhoneNumber phoneNumber)
+    {
+        if(phoneNumber == null)
+        {
+            throw new NullPointerException("New phoneNumber cannot be null");
+        }
+        if(phoneNumber.phoneNumber().equals(this.phoneNumber.phoneNumber())) return;
+        this.phoneNumber = phoneNumber;
+    }
+//    change email
+    public void changeEmail(Email email)
+    {
+        if(email == null)
+        {
+            throw new NullPointerException("New email cannot be null");
+        }
+        this.email = email;
+    }
 }

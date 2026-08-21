@@ -55,6 +55,38 @@ public final class JbdcUserRepository implements UserRepository{
             throw new RuntimeException("Error while saving user into DATABASE: " + e.getMessage(),e);
         }
     }
+//    update user by id
+    @Override
+    public void update(User user)
+    {
+        String sql = """
+                UPDATE users
+                SET
+                name = ?,
+                phone_number = ?,
+                email = ?,
+                role = ?,
+                status = ?,
+                password_hash = ?
+                WHERE id = ?,
+                """;
+        try(PreparedStatement ps = connection.prepareStatement(sql))
+        {
+            ps.setString(1, user.getName().toString());
+            if(user.getPhoneNumber() == null)
+            {
+                ps.setNull(2, Types.VARCHAR);
+            }
+            else ps.setString(2,user.getPhoneNumber().toString());
+            ps.setString(3,user.getEmail().toString());
+            ps.setString(4,user.getRole().name());
+            ps.setString(5, user.getStatus().name());
+            ps.setString(6,user.getPasswordHash().toString());
+            ps.executeUpdate();
+        } catch (SQLException e){
+            throw new RuntimeException("Error while updating user's information: " + e.getMessage(),e);
+        }
+    }
 //    find user by id
     @Override
     public Optional<User> findById(Long id){
@@ -101,6 +133,7 @@ public final class JbdcUserRepository implements UserRepository{
                         id,
                         password_hash,
                         name,
+                        null,
                         email,
                         role,
                         status,
@@ -164,6 +197,7 @@ public final class JbdcUserRepository implements UserRepository{
                         id,
                         password_hash,
                         name,
+                        null,
                         user_email,
                         role,
                         status,
