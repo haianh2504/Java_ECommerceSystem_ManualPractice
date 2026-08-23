@@ -1,7 +1,4 @@
-import infrastructure.DatabaseConnection;
-
-import java.sql.SQLException;
-import java.util.*;
+import common.DatabaseConnection;
 
 public class Main {
     public static void main(String[] args) {
