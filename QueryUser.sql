@@ -29,3 +29,6 @@ ADD COLUMN weight NUMERIC(10,3);
 
 ALTER TABLE users
 ADD CONSTRAINT email UNIQUE (email);
+
+ALTER TABLE products
+ADD CONSTRAINT product_name UNIQUE (product_name);

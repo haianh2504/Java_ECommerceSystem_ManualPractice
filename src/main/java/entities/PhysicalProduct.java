@@ -6,9 +6,9 @@ public class PhysicalProduct extends Product{
     private static BigDecimal PRICE_PER_WEIGHT = new BigDecimal("5"); // dollars
     private BigDecimal weight; // kg
 //    constructor to create new one
-    public PhysicalProduct(Long id, ProductName name, int stockQuantity, BigDecimal basePrice,ProductStatus status, ProductType productType, BigDecimal weight)
+    public PhysicalProduct(ProductName name, int stockQuantity, BigDecimal basePrice,ProductStatus status, ProductType productType, BigDecimal weight)
     {
-        super(id,name,stockQuantity, basePrice, status,productType);
+        super(name,stockQuantity, basePrice, status,productType);
         if(weight == null)
         {
             throw new NullPointerException("Weight product cannot be null");

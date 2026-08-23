@@ -15,10 +15,9 @@ public abstract class Product {
     private ProductStatus status;
     private final ProductType productType;
     private Instant createdAt;
-    protected Product(Long id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType)
+    protected Product(ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType)
     {
-        this.id = Objects.requireNonNull(id,"productId cannot be null");
-        this.name = name;
+        this.name = Objects.requireNonNull(name, "Product name cannot be null");
         if(stockQuantity < 0){
             throw new IllegalArgumentException("Stock quantity cannot be negative");
         }
@@ -86,5 +85,19 @@ public abstract class Product {
             throw new IllegalArgumentException("Product base price cannot be negative");
         }
         this.basePrice = basePrice;
+    }
+//    activate
+    public void activate()
+    {
+        this.status = ProductStatus.ACTIVE;
+    }
+//    deactivate
+    public void deactivate(){
+        this.status = ProductStatus.INACTIVE;
+    }
+//    archive
+    public void archive()
+    {
+        this.status = ProductStatus.ARCHIVED;
     }
 }

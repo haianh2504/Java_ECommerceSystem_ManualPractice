@@ -14,7 +14,23 @@ public final class UserManageServiceImpl implements UserManagementService{
     {
         this.userRepository = userRepository;
     }
-//    create new user after REGISTER
+//    find user by ID
+    @Override
+    public User findUserById(Long userId) {
+        Objects.requireNonNull(userId,"UserId cannot be null");
+        return userRepository.findById(userId).orElseThrow(
+                ()-> new RuntimeException("User not found")
+        );
+    }
+//    find user by Email
+    @Override
+    public User findUserByEmail(Email email) {
+        Objects.requireNonNull(email, "User email cannot be null");
+        return userRepository.findByEmail(email).orElseThrow(
+                () -> new RuntimeException("User not found")
+        );
+    }
+    //    create new user after REGISTER
     @Override
     public User createUser(PasswordHash passwordHash, PersonName name, PhoneNumber phoneNumber, Email email, UserRole userRole){
         // new User
@@ -34,6 +50,7 @@ public final class UserManageServiceImpl implements UserManagementService{
        User user = userRepository.findById(userId)
                .orElseThrow(() -> new RuntimeException("User not found"));
         user.activate(phoneNumber);
+        userRepository.update(user);
     }
 //    change name
     @Override
@@ -94,5 +111,6 @@ public final class UserManageServiceImpl implements UserManagementService{
             throw new IllegalStateException("Banned user cannot become admin");
         }
         targetUser.changeRole(UserRole.ADMIN);
+        userRepository.update(targetUser);
     }
 }

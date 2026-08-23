@@ -2,7 +2,13 @@ package services.userManagement;
 
 import entities.*;
 
+import java.util.Optional;
+
 public interface UserManagementService {
+//    find user by ID
+    public User findUserById(Long userId);
+//    find user by email
+    public User findUserByEmail(Email email);
 //    create new User
     public User createUser(PasswordHash passwordHash, PersonName name, PhoneNumber phoneNumber, Email email, UserRole userRole);
 //    make status ACTIVE if have full info
