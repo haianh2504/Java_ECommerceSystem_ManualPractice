@@ -32,3 +32,40 @@ ADD CONSTRAINT email UNIQUE (email);
 
 ALTER TABLE products
 ADD CONSTRAINT product_name UNIQUE (product_name);
+
+CREATE TYPE order_status_enum AS ENUM('PENDING_PAYMENT','SUCCESSFUL', 'CANCELLED');
+
+CREATE TABLE orders (
+    id BIGSERIAL PRIMARY KEY ,
+    user_id BIGINT NOT NULL REFERENCES users(id),
+    status order_status_enum NOT NULL DEFAULT 'PENDING_PAYMENT',
+    created_at timestamptz NOT NULL DEFAULT now(),
+    sub_total DECIMAL(10,2) NOT NULL,
+    shipping_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
+    discount_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+    total_price DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE order_items(
+    id BIGSERIAL PRIMARY KEY ,
+    order_id BIGINT NOT NULL REFERENCES orders(id),
+    product_id BIGINT NOT NULL REFERENCES products(id),
+    quantity INT NOT NULL DEFAULT 1,
+    unit_price DECIMAL(10,2) NOT NULL,
+    UNIQUE (order_id, product_id)
+);
+
+CREATE TABLE carts (
+    id BIGSERIAL PRIMARY KEY ,
+    user_id BIGINT NOT NULL UNIQUE REFERENCES users(id),
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE cart_items (
+    id BIGSERIAL PRIMARY KEY ,
+    cart_id BIGINT NOT NULL REFERENCES carts(id),
+    product_id BIGINT NOT NULL REFERENCES products(id),
+    quantity INT NOT NULL DEFAULT 1,
+    UNIQUE (cart_id, product_id)
+);
+

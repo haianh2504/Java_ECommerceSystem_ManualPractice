@@ -2,14 +2,16 @@ package cart.entities;
 
 import cart_item.entities.CartItem;
 
+import java.time.Instant;
 import java.util.*;
 
 public class Cart{
-    private String cartId;
-    private String userId;
-    private Map<String, CartItem> cartItems;
-//    constructor
-    public Cart(String cartId, String userId) // with list Items
+    private Long cartId;
+    private Long userId;
+    private Instant createdAt;
+    private Map<Long, CartItem> cartItems;
+//    constructor for SQL return
+    public Cart(Long cartId, Long userId, Instant createdAt) // with list Items
     {
         if(cartId == null)
         {
@@ -21,20 +23,27 @@ public class Cart{
         }
         this.cartId = cartId;
         this.userId = userId;
+        this.createdAt = Objects.requireNonNull(createdAt, "Timestamp createdAt cannot be null");
         this.cartItems = new HashMap<>();
     }
+//    constructor for creating new one
+    public Cart(Long userId)
+    {
+        this.userId = Objects.requireNonNull(userId, "User ID cannot be null");
+        this.createdAt = Instant.now();
+    }
 //    getters
-    public final String getCartId()
+    public final Long getCartId()
     {
         return this.cartId;
     }
-    public final String getUserId()
+    public final Long getUserId()
     {
         return this.userId;
     }
-    public Map<String,CartItem> getListItems() {
-        Map<String, CartItem> deepCopyMap = new HashMap<>();
-        for(Map.Entry<String,CartItem> e: cartItems.entrySet())
+    public Map<Long,CartItem> getListItems() {
+        Map<Long, CartItem> deepCopyMap = new HashMap<>();
+        for(Map.Entry<Long,CartItem> e: cartItems.entrySet())
                 {
                     deepCopyMap.put(e.getKey(), new CartItem(
                             e.getValue().getCartItemId(),
@@ -43,22 +52,15 @@ public class Cart{
                 }
         return Collections.unmodifiableMap(deepCopyMap);
     }
+    public final Instant getCreatedAt() {return this.createdAt;}
 //    add new cartItem in cart
-    public void addNewCartItem(String cartItemId,String productId, int number)
+    public void addNewCartItem(Long cartItemId,Long productId, int number)
     {
         if(cartItemId == null){
             throw new NullPointerException("CartItemID cannot be null");
         }
-        else if(cartItemId.isBlank())
-        {
-            throw new IllegalArgumentException("CartItemID cannot be blank");
-        }
         if(productId == null){
             throw new NullPointerException("ProductId cannot be null");
-        }
-        else if(productId.isBlank())
-        {
-            throw new IllegalArgumentException("ProductID cannot be blank");
         }
         if(number <= 0)
         {
@@ -79,13 +81,9 @@ public class Cart{
         return null;
     }
 //    change quantity in cartItem
-    public boolean changeQuantity(String cartItemId, int newNumber){
+    public boolean changeQuantity(Long cartItemId, int newNumber){
         if(cartItemId == null){
             throw new NullPointerException("CartItemID cannot be null");
-        }
-        else if(cartItemId.isBlank())
-        {
-            throw new IllegalArgumentException("CartItemID cannot be blank");
         }
         if(newNumber <= 0){
             throw new IllegalArgumentException("Number cannot be under ZERO");
@@ -100,7 +98,7 @@ public class Cart{
         return false;
     }
 //    delete cartItem in cart
-    public boolean deleteCartItem(String cartItemId){
+    public boolean deleteCartItem(Long cartItemId){
         boolean exist = cartItems.containsKey(cartItemId);
         if(exist)
         {
