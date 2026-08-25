@@ -2,14 +2,17 @@ package cart.service;
 
 import cart.entities.Cart;
 import cart.repository.CartRepository;
+import cart_item.repository.CartItemRepository;
 
 import java.util.Objects;
 
 public class CartManagementServiceImpl implements CartManagementService {
     private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
 //    constructor
-    public CartManagementServiceImpl(CartRepository cartRepository) {
+    public CartManagementServiceImpl(CartRepository cartRepository, CartItemRepository cartItemRepository) {
         this.cartRepository = Objects.requireNonNull(cartRepository, "CartRepository cannot be null");
+        this.cartItemRepository = Objects.requireNonNull(cartItemRepository, "CartItemRepository cannot be null");
     }
 //    create new cart
     @Override
@@ -28,6 +31,9 @@ public class CartManagementServiceImpl implements CartManagementService {
                 () -> new IllegalArgumentException("Cart for userId does not exists")
         );
     }
-
-
+//    clear cart
+    @Override
+    public void clearCart(Long cartId) {
+        cartItemRepository.deleteAllByCartId(cartId);
+    }
 }
