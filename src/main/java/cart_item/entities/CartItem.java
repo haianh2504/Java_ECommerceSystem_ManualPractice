@@ -39,6 +39,7 @@ public class CartItem {
     }
 //    getters
     public final Long getCartItemId(){return this.cartItemId;}
+    public final Long getCartId(){return this.cartId;}
     public final Long getProductId()
     {
         return this.productId;

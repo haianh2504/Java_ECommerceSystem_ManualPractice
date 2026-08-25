@@ -3,13 +3,10 @@ package cart.service;
 import cart.entities.Cart;
 
 public interface CartManagementService {
-//    Manage lifecyle of a cart
-
+    // create new cart
+    public void createCart(Long userId);
     // get cart by userID
-    public Cart getCartByUserId(String userId);
+    public Cart getCartByUserId(Long userId);
     // clear cart
-    public boolean clearCart(String cartId);
-    // merge Anomynous Cart into
-
-
+    public void clearCart(Long cartId);
 }
