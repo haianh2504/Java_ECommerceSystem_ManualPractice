@@ -16,12 +16,14 @@ public class CartManagementServiceImpl implements CartManagementService {
     }
 //    create new cart
     @Override
-    public void createCart(Long userId) {
+    public Cart createCart(Long userId) {
         Objects.requireNonNull(userId, "userId cannot be null");
         if(cartRepository.findByUserId(userId).isPresent()){
             throw new IllegalArgumentException("Cart for userId already exists");
         }
-        cartRepository.save(new Cart(userId));
+        Cart cart = new Cart(userId);
+        cartRepository.save(cart);
+        return cart;
     }
 //    get cart by userID
     @Override

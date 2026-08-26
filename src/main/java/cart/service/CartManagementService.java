@@ -4,7 +4,7 @@ import cart.entities.Cart;
 
 public interface CartManagementService {
     // create new cart
-    public void createCart(Long userId);
+    public Cart createCart(Long userId);
     // get cart by userID
     public Cart getCartByUserId(Long userId);
     // clear cart

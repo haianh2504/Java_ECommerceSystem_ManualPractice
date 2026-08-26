@@ -10,7 +10,7 @@ public interface CartItemManagementService {
     public List<CartItem> getCartItemsByCartId(Long cartId);
 
 //    add new cartItem in cart
-    public void addNewCartItem(Long cartId,Long productId, int number);
+    public CartItem addNewCartItem(Long cartId,Long productId, int number);
 
 //    delete cartItem in cart
     public void deleteCartItem(Long cartItemId);

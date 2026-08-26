@@ -11,7 +11,6 @@ public class Order {
     private Long orderId;
     private Long userId;
     private OrderStatus orderStatus; // initially PENDING
-    private List<OrderItem> orderItemList;
     private Instant createdAt;
     // financial
     private BigDecimal subTotal; // total final price of all product
@@ -23,7 +22,6 @@ public class Order {
             Long orderId,
             Long userId,
             OrderStatus orderStatus,
-            List<OrderItem> orderItemList,
             Instant createdAt,
             BigDecimal subTotal,
             BigDecimal shippingFee,
@@ -33,29 +31,32 @@ public class Order {
         this.orderId = Objects.requireNonNull(orderId, "orderId cannot be null");
         this.userId = Objects.requireNonNull(userId, "userId cannot be null");
         this.orderStatus = Objects.requireNonNull(orderStatus, "orderStatus cannot be null");
-        this.orderItemList = List.copyOf(Objects.requireNonNull(orderItemList, "cartItemsList cannot be null"));
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt cannot be null");
         this.subTotal = Objects.requireNonNull(subTotal, "subTotal cannot be null");
         this.shippingFee = (shippingFee == null) ? BigDecimal.ZERO : shippingFee;
         this.discountAmount = (discountAmount == null) ? BigDecimal.ZERO : discountAmount;
         this.totalPrice = Objects.requireNonNull(totalPrice, "totalPrice cannot be null");
     }
-//    constructor - initialization
+//    constructor for creating one
     public Order(
             Long userId,
-            OrderStatus orderStatus,
-            List<OrderItem> orderItemList
+            BigDecimal subTotal,
+            BigDecimal shippingFee,
+            BigDecimal discountAmount
     )
     {
-
+        this.userId = Objects.requireNonNull(userId, "userId cannot be null");
+        this.subTotal = Objects.requireNonNull(subTotal, "subTotal cannot be null");
+        this.shippingFee = (shippingFee == null) ? BigDecimal.ZERO : shippingFee;
+        this.discountAmount = (discountAmount == null) ? BigDecimal.ZERO : discountAmount;
+        this.orderStatus = OrderStatus.PENDING_PAYMENT;
+        this.createdAt = Instant.now();
+        this.totalPrice = subTotal.subtract(shippingFee).subtract(discountAmount);
     }
 //    getters
     public final Long getOrderId(){return this.orderId;}
     public final OrderStatus getOrderStatus(){return this.orderStatus;}
     public final Long getUserId(){return this.userId;}
-    public final List<OrderItem> getOrderItemList(){
-        return Collections.unmodifiableList(this.orderItemList);
-    }
     public final BigDecimal getSubTotal(){return this.subTotal;}
     public final BigDecimal getShippingFee(){return this.shippingFee;}
     public final BigDecimal getDiscountAmount(){return this.discountAmount;}
