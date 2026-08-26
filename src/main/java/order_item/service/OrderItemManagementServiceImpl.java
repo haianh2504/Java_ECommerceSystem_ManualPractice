@@ -62,4 +62,15 @@ public class OrderItemManagementServiceImpl implements OrderItemManagementServic
                 orderItemRepo.findByOrderId(orderId)
         );
     }
+//    calculate total price of an order items
+    @Override
+    public BigDecimal getTotalPrice(OrderItem orderItem) {
+        Objects.requireNonNull(orderItem, "orderItem must not be null");
+        if(orderItemRepo.findByOrderId(orderItem.getOrderItemId()).isEmpty()){
+            throw new IllegalArgumentException("orderItem not found");
+        }
+        return orderItem.getUnitPrice().multiply(
+                new BigDecimal(orderItem.getQuantity())
+        );
+    }
 }

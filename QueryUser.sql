@@ -69,3 +69,4 @@ CREATE TABLE cart_items (
     UNIQUE (cart_id, product_id)
 );
 
+alter type order_status_enum ADD VALUE 'FAILED'

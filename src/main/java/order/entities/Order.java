@@ -51,7 +51,7 @@ public class Order {
         this.discountAmount = (discountAmount == null) ? BigDecimal.ZERO : discountAmount;
         this.orderStatus = OrderStatus.PENDING_PAYMENT;
         this.createdAt = Instant.now();
-        this.totalPrice = subTotal.subtract(shippingFee).subtract(discountAmount);
+        this.totalPrice = subTotal.add(shippingFee).subtract(discountAmount);
     }
 //    getters
     public final Long getOrderId(){return this.orderId;}
@@ -61,4 +61,5 @@ public class Order {
     public final BigDecimal getShippingFee(){return this.shippingFee;}
     public final BigDecimal getDiscountAmount(){return this.discountAmount;}
     public final BigDecimal getTotalPrice(){return this.totalPrice;}
+    public final Instant getCreatedAt(){return this.createdAt;}
 }
