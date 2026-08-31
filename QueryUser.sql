@@ -69,4 +69,29 @@ CREATE TABLE cart_items (
     UNIQUE (cart_id, product_id)
 );
 
-alter type order_status_enum ADD VALUE 'FAILED'
+alter type order_status_enum ADD VALUE 'FAILED';
+
+-- 1. Thêm cột cart_id vào bảng orders (thay INT bằng UUID hoặc BIGINT tùy thiết kế)
+ALTER TABLE orders
+    ADD COLUMN cart_id BIGINT;
+
+-- 2. Tạo ràng buộc UNIQUE cho cặp (user_id, cart_id)
+ALTER TABLE orders
+    ADD CONSTRAINT uq_orders_user_cart UNIQUE (user_id, cart_id);
+
+ALTER TABLE orders
+ADD CONSTRAINT fk_orders_users
+FOREIGN KEY (user_id)
+REFERENCES users(id)
+ON DELETE CASCADE -- KHI xoá user đó thì mọi đơn hàng liên quan tới sẽ ra đi
+
+ALTER TABLE orders
+ADD CONSTRAINT fk_orders_carts
+FOREIGN KEY (cart_id)
+REFERENCES carts(id)
+
+CREATE TYPE cart_status_enum AS ENUM('ACTIVE','CHECKED_OUT');
+ALTER TABLE carts
+ADD COLUMN status cart_status_enum;
+ALTER TABLE carts
+ALTER COLUMN status SET NOT NULL;

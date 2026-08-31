@@ -3,45 +3,48 @@ package order.service;
 import order.entities.Order;
 import order.entities.OrderStatus;
 import order.repository.OrderRepository;
+import shipping.ShippingStrategy;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
 public class OrderManagementServiceImpl implements OrderManagementService {
+    private final ShippingStrategy shippingStrategy;
     private final OrderRepository orderRepository;
 //    constructor
-    public OrderManagementServiceImpl(OrderRepository orderRepository) {
+    public OrderManagementServiceImpl(OrderRepository orderRepository, ShippingStrategy shippingStrategy) {
         this.orderRepository = Objects.requireNonNull(orderRepository, "orderRepository must not be null");
+        this.shippingStrategy = Objects.requireNonNull(shippingStrategy, "shippingStrategy must not be null");
     }
 //    create Order
-    @Override
-    public Order createOrder(
-            Long userId,
-            BigDecimal subTotal,
-            BigDecimal shippingFee,
-            BigDecimal discountAmount
-    ) {
+    public Order createOrder(Long userId,
+                             Long cartId,
+                             BigDecimal subTotal,
+                             BigDecimal shippingFee,
+                             BigDecimal discountAmount,
+                             BigDecimal totalPrice) {
         Objects.requireNonNull(userId, "userId must not be null");
+        Objects.requireNonNull(cartId, "cartId must not be null");
         Objects.requireNonNull(subTotal, "subTotal must not be null");
         Objects.requireNonNull(shippingFee, "shippingFee must not be null");
         Objects.requireNonNull(discountAmount, "discountAmount must not be null");
-        if(subTotal.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("subTotal must be greater than zero");
+        Objects.requireNonNull(totalPrice, "totalPrice must not be null");
+        if(subTotal.compareTo(shippingFee) < 0) {
+            throw new IllegalArgumentException("subtotal cannot be negative");
         }
-        if(shippingFee.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("shippingFee must be greater than zero");
+        if(discountAmount.compareTo(shippingFee) < 0) {
+            throw new IllegalArgumentException("discountAmount cannot be negative");
         }
-        if(discountAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("discountAmount must be greater than zero");
+        if (shippingFee.compareTo(subTotal) < 0) {
+            throw new IllegalArgumentException("ShippingFee cannot be negative");
         }
-        Order order = new Order(
-                userId,
-                subTotal,
-                shippingFee,
-                discountAmount
-        );
-        return order;
+        if (totalPrice.compareTo(shippingFee) < 0) {
+            throw new IllegalArgumentException("totalPrice cannot be negative");
+        }
+        Order order = new Order(userId,cartId, subTotal, shippingFee, discountAmount, totalPrice);
+        return orderRepository.save(order);
+
     }
 //    get list of orders by userId
     @Override
@@ -63,4 +66,5 @@ public class OrderManagementServiceImpl implements OrderManagementService {
                         () -> new RuntimeException("Order with id " + orderId + " not found")
                 );
     }
+
 }

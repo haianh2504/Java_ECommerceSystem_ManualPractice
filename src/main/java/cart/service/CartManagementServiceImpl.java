@@ -38,4 +38,14 @@ public class CartManagementServiceImpl implements CartManagementService {
     public void clearCart(Long cartId) {
         cartItemRepository.deleteAllByCartId(cartId);
     }
+//    check out cart - change cart status
+    @Override
+    public void checkoutCart(Long cartId) {
+        Objects.requireNonNull(cartId, "cartId cannot be null");
+        Cart cart = cartRepository.findByUserId(cartId).orElseThrow(
+                () -> new IllegalArgumentException("Cart does not exists")
+        );
+        cart.setCheckedOutStatus();
+        cartRepository.update(cart);
+    }
 }

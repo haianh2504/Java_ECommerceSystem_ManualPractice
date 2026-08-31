@@ -14,4 +14,6 @@ public interface CartRepository {
     public void save(Cart cart);
 //    delete cart
     public void deleteById(Long cartId);
+//    update cart
+    public void update(Cart cart);
 }

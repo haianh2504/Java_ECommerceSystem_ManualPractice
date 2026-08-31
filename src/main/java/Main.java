@@ -20,7 +20,6 @@ import user.repository.JbdcUserRepository;
 import user.repository.UserRepository;
 import user.service.UserManageServiceImpl;
 import user.service.UserManagementService;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 
@@ -65,6 +64,8 @@ public class Main {
                 product.getId(),
                 2
         );
+        // khi bấm checkout
+
 
     }
 }

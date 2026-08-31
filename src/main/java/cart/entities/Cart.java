@@ -9,26 +9,21 @@ public class Cart{
     private Long cartId;
     private Long userId;
     private Instant createdAt;
+    private CartStatus cartStatus;
 //    constructor for SQL return
-    public Cart(Long cartId, Long userId, Instant createdAt) // with list Items
+    public Cart(Long cartId, Long userId, Instant createdAt,CartStatus cartStatus) // with list Items
     {
-        if(cartId == null)
-        {
-            throw new NullPointerException("Cart ID cannot be null");
-        }
-        if(userId == null)
-        {
-            throw new NullPointerException("User ID in cart cannot be null");
-        }
-        this.cartId = cartId;
-        this.userId = userId;
+        this.cartId = Objects.requireNonNull(cartId,"cartId cannot be null");
+        this.userId = Objects.requireNonNull(userId,"userId cannot be null");
         this.createdAt = Objects.requireNonNull(createdAt, "Timestamp createdAt cannot be null");
+        this.cartStatus = Objects.requireNonNull(cartStatus,"cartStatus cannot be null");
     }
 //    constructor for creating new one
     public Cart(Long userId)
     {
         this.userId = Objects.requireNonNull(userId, "User ID cannot be null");
         this.createdAt = Instant.now();
+        this.cartStatus = CartStatus.ACTIVE;
     }
 //    getters
     public final Long getCartId()
@@ -40,4 +35,15 @@ public class Cart{
         return this.userId;
     }
     public final Instant getCreatedAt() {return this.createdAt;}
+    public final CartStatus getCartStatus()
+    {
+        return this.cartStatus;
+    }
+//    setter
+    public final void setCheckedOutStatus()
+    {
+        Objects.requireNonNull(cartStatus,"cartStatus cannot be null");
+        if(this.cartStatus == CartStatus.CHECKED_OUT) return;
+        this.cartStatus = CartStatus.CHECKED_OUT;
+    }
 }

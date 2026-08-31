@@ -3,8 +3,10 @@ package cart_item.service;
 import cart_item.entities.CartItem;
 import cart_item.repository.CartItemRepository;
 import product.entities.Product;
+import product.entities.ProductStatus;
 import product.repository.ProductRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -87,5 +89,36 @@ public class CartItemManagementServiceImpl implements  CartItemManagementService
         cartItem.changeNumber(newQuantity);
         cartItemRepository.update(cartItem);
     }
-
+//    calculate total price for each cart item
+    @Override
+    public BigDecimal calculateTotalPrice(List<CartItem> cartItemList) {
+        Objects.requireNonNull(cartItemList, "cartItemList cannot be null");
+        BigDecimal subTotal = BigDecimal.ZERO;
+        for(CartItem cartItem : cartItemList){
+            Product product = productRepository.findById(cartItem.getProductId()).orElseThrow(
+                    () -> new RuntimeException("product with id: " + cartItem.getProductId() + " not found")
+            );
+            subTotal.add(product.getBasePrice().multiply(new BigDecimal(cartItem.getNumber())));
+        }
+        return subTotal;
+    }
+//    validate cart item
+    @Override
+    public Product validatedCartItemToOrderItem(CartItem cartItem) {
+        Objects.requireNonNull(cartItem, "cartItem cannot be null");
+        // check if product is valid -> ACTIVE
+        Product product = productRepository.findById(cartItem.getProductId()).orElseThrow(
+                () -> new RuntimeException("product with id: " + cartItem.getProductId() + " not found")
+        );
+        // check status
+        if(product.getStatus() != ProductStatus.ACTIVE){
+            throw new IllegalStateException("Product status must be ACTIVE");
+        }
+        // check quantity
+        if(product.getQuantity() < cartItem.getNumber()){
+            throw new IllegalArgumentException("Insufficient stock quantity");
+        }
+        return product;
+    }
 }
+

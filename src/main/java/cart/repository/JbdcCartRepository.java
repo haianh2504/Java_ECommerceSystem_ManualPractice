@@ -1,6 +1,7 @@
 package cart.repository;
 
 import cart.entities.Cart;
+import cart.entities.CartStatus;
 import cart_item.entities.CartItem;
 import common.DatabaseConnection;
 
@@ -25,7 +26,8 @@ public class JbdcCartRepository implements CartRepository {
                 id,
                 cart_id,
                 user_id,
-                created_at
+                created_at,
+                status
                 FROM carts WHERE id = ?;
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
@@ -41,7 +43,8 @@ public class JbdcCartRepository implements CartRepository {
                     new Cart(
                             rs.getLong("id"),
                             rs.getLong("user_id"),
-                            rs.getTimestamp("created_at").toInstant()
+                            rs.getTimestamp("created_at").toInstant(),
+                            CartStatus.valueOf(rs.getString("status"))
                     )
             );
         }catch (SQLException e)
@@ -56,7 +59,8 @@ public class JbdcCartRepository implements CartRepository {
                 SELECT
                 id,
                 user_id,
-                created_at
+                created_at,
+                status
                 FROM carts WHERE user_id = ?;
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
@@ -71,7 +75,8 @@ public class JbdcCartRepository implements CartRepository {
                     new Cart(
                             rs.getLong("id"),
                             rs.getLong("user_id"),
-                            rs.getTimestamp("created_at").toInstant()
+                            rs.getTimestamp("created_at").toInstant(),
+                            CartStatus.valueOf(rs.getString("status"))
                     )
             );
         }catch (SQLException e)
@@ -111,6 +116,25 @@ public class JbdcCartRepository implements CartRepository {
         }catch(SQLException e)
         {
             throw new RuntimeException("Error while deleting cart from database: " + e.getMessage(), e);
+        }
+    }
+//    update cart - tạm thời chỉ status
+    @Override
+    public void update(Cart cart) {
+        String sql = """
+                UPDATE carts
+                SET
+                status = ?
+                WHERE cart_id = ?;
+        """;
+        try(PreparedStatement ps = connection.prepareStatement(sql))
+        {
+            ps.setString(1,cart.getCartStatus().name());
+            ps.setLong(2,cart.getCartId());
+            ps.executeUpdate();
+        }catch (SQLException e)
+        {
+            throw new RuntimeException("Error while updating cart from database: " + e.getMessage(), e);
         }
     }
 }

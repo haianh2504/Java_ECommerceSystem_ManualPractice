@@ -1,6 +1,7 @@
 package cart_item.service;
 
 import cart_item.entities.CartItem;
+import product.entities.Product;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,4 +24,10 @@ public interface CartItemManagementService {
 
 //    update Item quantity
     public void updateItemQuantity(Long cartItemId, int newQuantity);
+
+//    calculate total price for a cartItem
+    public BigDecimal calculateTotalPrice(List<CartItem> cartItemList);
+
+//    validate cart item
+    public Product validatedCartItemToOrderItem(CartItem cartItem);
 }

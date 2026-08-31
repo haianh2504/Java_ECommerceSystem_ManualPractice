@@ -9,9 +9,11 @@ public interface OrderManagementService {
 //    create new Order
     public Order createOrder(
             Long userId,
+            Long cartId,
             BigDecimal subTotal,
             BigDecimal shippingFee,
-            BigDecimal discountAmount
+            BigDecimal discountAmount,
+            BigDecimal totalPrice
             );
 //    get List of orders by userId
     public List<Order> getAllOrdersByUserId(Long userId);
