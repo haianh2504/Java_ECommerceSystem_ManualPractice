@@ -1,22 +1,22 @@
 import cart.entities.Cart;
 import cart.repository.CartRepository;
-import cart.repository.JbdcCartRepository;
+import cart.repository.JdbcCartRepository;
 import cart.service.CartManagementService;
 import cart.service.CartManagementServiceImpl;
 import cart_item.entities.CartItem;
 import cart_item.repository.CartItemRepository;
-import cart_item.repository.JbdcCartItemRepository;
+import cart_item.repository.JdbcCartItemRepository;
 import cart_item.service.CartItemManagementService;
 import cart_item.service.CartItemManagementServiceImpl;
 import common.DatabaseConnection;
 import product.entities.Product;
 import product.entities.ProductName;
-import product.repository.JbdcProductRepository;
+import product.repository.JdbcProductRepository;
 import product.repository.ProductRepository;
 import product.service.ProductManagementService;
 import product.service.ProductManagementServiceImpl;
 import user.entities.*;
-import user.repository.JbdcUserRepository;
+import user.repository.JdbcUserRepository;
 import user.repository.UserRepository;
 import user.service.UserManageServiceImpl;
 import user.service.UserManagementService;
@@ -29,10 +29,10 @@ public class Main {
         // tạo database connection trước
         Connection connection = DatabaseConnection.getConnection();
         // Repository setting up
-        UserRepository userRepository = new JbdcUserRepository(connection);
-        CartRepository cartRepository = new JbdcCartRepository(connection);
-        CartItemRepository cartItemRepository = new JbdcCartItemRepository(connection);
-        ProductRepository productRepository = new JbdcProductRepository(connection);
+        UserRepository userRepository = new JdbcUserRepository(connection);
+        CartRepository cartRepository = new JdbcCartRepository(connection);
+        CartItemRepository cartItemRepository = new JdbcCartItemRepository(connection);
+        ProductRepository productRepository = new JdbcProductRepository(connection);
         // cart service setting up
         CartManagementService cartManagementService = new CartManagementServiceImpl(cartRepository,cartItemRepository);
         // cart Item service setting up

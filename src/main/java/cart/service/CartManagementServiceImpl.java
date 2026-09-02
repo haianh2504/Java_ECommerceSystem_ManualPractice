@@ -18,9 +18,6 @@ public class CartManagementServiceImpl implements CartManagementService {
     @Override
     public Cart createCart(Long userId) {
         Objects.requireNonNull(userId, "userId cannot be null");
-        if(cartRepository.findByUserId(userId).isPresent()){
-            throw new IllegalArgumentException("Cart for userId already exists");
-        }
         Cart cart = new Cart(userId);
         cartRepository.save(cart);
         return cart;
@@ -42,7 +39,7 @@ public class CartManagementServiceImpl implements CartManagementService {
     @Override
     public void checkoutCart(Long cartId) {
         Objects.requireNonNull(cartId, "cartId cannot be null");
-        Cart cart = cartRepository.findByUserId(cartId).orElseThrow(
+        Cart cart = cartRepository.findById(cartId).orElseThrow(
                 () -> new IllegalArgumentException("Cart does not exists")
         );
         cart.setCheckedOutStatus();

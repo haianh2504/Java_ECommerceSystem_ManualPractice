@@ -40,7 +40,7 @@ public class JdbcOrderRepository implements OrderRepository {
             ps.setLong(1, order.getUserId());
             ps.setLong(2, order.getCartId());
             ps.setString(3,order.getOrderStatus().name());
-            ps.setTimestamp(3, java.sql.Timestamp.from(order.getCreatedAt()));
+            ps.setTimestamp(4, java.sql.Timestamp.from(order.getCreatedAt()));
             ps.setBigDecimal(5, order.getSubTotal());
             ps.setBigDecimal(6, order.getShippingFee());
             ps.setBigDecimal(7, order.getDiscountAmount());

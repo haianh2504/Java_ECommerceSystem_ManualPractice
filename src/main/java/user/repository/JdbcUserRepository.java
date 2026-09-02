@@ -7,11 +7,11 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class JbdcUserRepository implements UserRepository{
+public final class JdbcUserRepository implements UserRepository{
     // repository needs connection to communicate with DATABASE
     private final Connection connection;
 //    constructor
-    public JbdcUserRepository(Connection connection)
+    public JdbcUserRepository(Connection connection)
     {
         this.connection = Objects.requireNonNull(connection, "Connection cannot be null");
     }

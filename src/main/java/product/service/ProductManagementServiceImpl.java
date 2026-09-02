@@ -146,4 +146,27 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         product.deactivate();
         productRepository.update(product);
     }
+//    decrease quantity
+    @Override
+    public void decreaseStockQuantity(Long productId, int decreaseQuantity) {
+        Objects.requireNonNull(productId,"Product id cannot be null");
+        if(decreaseQuantity <= 0)
+        {
+            throw new IllegalArgumentException("Product quantity cannot be negative");
+        }
+        if(!productRepository.decreaseQuantity(productId, decreaseQuantity))
+        {
+            throw new RuntimeException("Decrease quantity has failed due to insufficient quantity or product not found");
+        }
+    }
+//    increase quantity
+    @Override
+    public void increaseStockQuantity(Long productId, int increaseQuantity) {
+        Objects.requireNonNull(productId,"Product id cannot be null");
+        if(increaseQuantity <= 0)
+        {
+            throw new IllegalArgumentException("Product quantity cannot be negative");
+        }
+        productRepository.increaseQuantity(productId, increaseQuantity);
+    }
 }

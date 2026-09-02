@@ -1,4 +1,4 @@
-package checkout;
+package checkout.service;
 
 import order.entities.Order;
 

@@ -14,4 +14,8 @@ public interface ProductRepository {
     public Optional<Product> findByName(ProductName name);
 //    update product after changes
     public void update(Product product);
+//    decrease quantity by number of..
+    public boolean decreaseQuantity(Long productId, int quantity);
+//    increase quantity of number of..
+    public void increaseQuantity(Long productId, int quantity);
 }

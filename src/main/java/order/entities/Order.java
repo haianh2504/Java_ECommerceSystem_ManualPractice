@@ -31,7 +31,7 @@ public class Order {
             BigDecimal totalPrice
     ) {
         this.orderId = Objects.requireNonNull(orderId, "orderId cannot be null");
-        this.cartId = Objects.requireNonNull(orderId, "cartId cannot be null");
+        this.cartId = Objects.requireNonNull(cartId, "cartId cannot be null");
         this.userId = Objects.requireNonNull(userId, "userId cannot be null");
         this.orderStatus = Objects.requireNonNull(orderStatus, "orderStatus cannot be null");
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt cannot be null");

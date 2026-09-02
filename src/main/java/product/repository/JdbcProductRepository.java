@@ -8,10 +8,10 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class JbdcProductRepository implements ProductRepository {
+public final class JdbcProductRepository implements ProductRepository {
     private final Connection connection;
 //    constructor
-    public JbdcProductRepository(Connection connection)
+    public JdbcProductRepository(Connection connection)
     {
         this.connection = Objects.requireNonNull(connection, "Connection cannot be null");
 
@@ -90,40 +90,32 @@ public final class JbdcProductRepository implements ProductRepository {
             ProductType type = ProductType.valueOf(rs.getString("type"));
             Instant created_at = rs.getTimestamp("created_at").toInstant();
             BigDecimal weight = rs.getBigDecimal("weight");
+            Product data;
             if(weight != null)
             {
-                Product data;
-                if(type == ProductType.PHYSICAL)
-                {
-                    data = new PhysicalProduct(
-                            productId,
-                            name,
-                            quantity,
-                            price,
-                            status,
-                            type,
-                            created_at,
-                            weight
-                    );
-                }
-                else{
-                    data = new DigitalProduct(
-                            productId,
-                            name,
-                            quantity,
-                            price,
-                            status,
-                            type,
-                            created_at
-                    );
-                }
-                return Optional.of(data);
+                data = new PhysicalProduct(
+                        productId,
+                        name,
+                        quantity,
+                        price,
+                        status,
+                        type,
+                        created_at,
+                        weight
+                );
             }
             else{
-                return Optional.empty();
+                data = new DigitalProduct(
+                        productId,
+                        name,
+                        quantity,
+                        price,
+                        status,
+                        type,
+                        created_at
+                );
             }
-
-
+            return Optional.of(data);
         }catch(SQLException e)
         {
             throw new RuntimeException("Error while searching for products: " + e.getMessage(), e);
@@ -219,6 +211,45 @@ public final class JbdcProductRepository implements ProductRepository {
         }catch (SQLException e)
         {
             throw new RuntimeException("Error while updating product: " + e.getMessage(), e);
+        }
+    }
+//    decrease quantity
+    @Override
+    public boolean decreaseQuantity(Long productId, int quantity) {
+        String sql = """
+                UPDATE products
+                SET quantity = quantity - ?
+                WHERE id = ? AND quantity >= ?;
+                """;
+        try(PreparedStatement ps = connection.prepareStatement(sql))
+        {
+            ps.setInt(1, quantity);
+            ps.setLong(2, productId);
+            ps.setInt(3, quantity);
+            int affectedRows = ps.executeUpdate();
+            // SQL run but nothing change due to ID wrong OR quantity of the product is < than number we want
+            return affectedRows == 1;
+        }catch (SQLException e)
+        {
+            throw new RuntimeException("Error while decreasing product's quantity: " + e.getMessage(),e);
+        }
+    }
+//    increase quantity
+    @Override
+    public void increaseQuantity(Long productId, int quantity) {
+        String sql = """
+                UPDATE products
+                SET quantity = quantity + ?
+                WHERE id = ?;
+        """;
+        try(PreparedStatement ps = connection.prepareStatement(sql))
+        {
+            ps.setInt(1, quantity);
+            ps.setLong(2, productId);
+            ps.executeUpdate();
+        }catch (SQLException e)
+        {
+            throw new RuntimeException("Error while increasing product's quantity: " + e.getMessage(),e);
         }
     }
 }

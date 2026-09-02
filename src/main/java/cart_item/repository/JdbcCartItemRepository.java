@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class JbdcCartItemRepository implements CartItemRepository {
+public class JdbcCartItemRepository implements CartItemRepository {
     private final Connection connection;
 //    constructor
-    public JbdcCartItemRepository(Connection connection) {
+    public JdbcCartItemRepository(Connection connection) {
         this.connection = connection;
     }
 //    get all cart items by cart id

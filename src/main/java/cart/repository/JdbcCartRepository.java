@@ -2,8 +2,6 @@ package cart.repository;
 
 import cart.entities.Cart;
 import cart.entities.CartStatus;
-import cart_item.entities.CartItem;
-import common.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,10 +10,10 @@ import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Optional;
 
-public class JbdcCartRepository implements CartRepository {
+public class JdbcCartRepository implements CartRepository {
     private final Connection connection;
 //    constructor
-    public JbdcCartRepository(Connection connection){
+    public JdbcCartRepository(Connection connection){
         this.connection = Objects.requireNonNull(connection, "Database connection undefined");
     }
 //    Find cart by id

@@ -1,4 +1,4 @@
-package checkout;
+package checkout.service;
 
 import cart.entities.Cart;
 import cart.repository.CartRepository;
@@ -6,18 +6,15 @@ import cart.service.CartManagementService;
 import cart_item.entities.CartItem;
 import cart_item.repository.CartItemRepository;
 import cart_item.service.CartItemManagementService;
+import checkout.entities.CheckoutItem;
 import discount.entities.Discount;
 import discount.service.DiscountService;
 import order.entities.Order;
-import order.repository.OrderRepository;
 import order.service.OrderManagementService;
 import order_item.service.OrderItemManagementService;
 import product.entities.Product;
-import product.repository.ProductRepository;
 import product.service.ProductManagementService;
-import product.service.ProductManagementServiceImpl;
 import shipping.ShippingStrategy;
-import user.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -111,11 +108,10 @@ public class CheckouServiceImpl implements CheckoutService {
             throw new IllegalStateException("Cart has no items");
         }
 //        check validate and get products
-        List<Product> productList = new ArrayList<>();
-        List<Integer> quantityList = new ArrayList<>();
+        List< CheckoutItem> checkoutItemList = new ArrayList<>();
         for(CartItem cartItem : cartItemList){
-            productList.add(cartItemManagementService.validatedCartItemToOrderItem(cartItem));
-            quantityList.add(cartItem.getNumber());
+            Product product = cartItemManagementService.validatedCartItemToOrderItem(cartItem);
+            checkoutItemList.add(new CheckoutItem(cartItem, product));
             // throw exception if
             // =>  product not exist | invalid quantity
         }
@@ -136,15 +132,17 @@ public class CheckouServiceImpl implements CheckoutService {
                     newOrder.getOrderId(),
                     cartItem.getProductId(),
                     cartItem.getNumber(),
-                    productList.get(index++).getBasePrice()
+                    checkoutItemList.get(index++).product().getBasePrice()
             );
         }
         // change cart status into CHECKED_OUT
         cartManagementService.checkoutCart(cartId);
         // decrease stock quantity of the quantity
-        index = 0;
-        for(Product product : productList){
-            productManagementService.decreaseStockQuantity(product.getId(),quantityList.get(index++));
+        for(CheckoutItem checkoutItem : checkoutItemList){
+            productManagementService.decreaseStockQuantity(  // -> could throw exception
+                    checkoutItem.product().getId(), // product Id
+                    checkoutItem.cartItem().getNumber() // decreased number
+            );
         }
         return newOrder;
     }

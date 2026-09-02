@@ -95,3 +95,6 @@ ALTER TABLE carts
 ADD COLUMN status cart_status_enum;
 ALTER TABLE carts
 ALTER COLUMN status SET NOT NULL;
+
+ALTER TABLE products DROP CONSTRAINT product_name;
+ALTER TABLE
