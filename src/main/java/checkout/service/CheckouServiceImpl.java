@@ -14,6 +14,8 @@ import order.service.OrderManagementService;
 import order_item.service.OrderItemManagementService;
 import product.entities.Product;
 import product.repository.ProductRepository;
+import product.service.ProductManagementService;
+import product.service.ProductManagementServiceImpl;
 import shipping.ShippingStrategy;
 import user.repository.UserRepository;
 
@@ -70,6 +72,7 @@ public class CheckouServiceImpl implements CheckoutService {
     private final DiscountService discountService;
     private final OrderManagementService orderManagementService;
     private final OrderItemManagementService orderItemManagementService;
+    private final ProductManagementService productManagementService;
 //    constructor
     public CheckouServiceImpl(CartRepository cartRepository,
                               CartItemRepository cartItemRepository,
@@ -78,7 +81,8 @@ public class CheckouServiceImpl implements CheckoutService {
                               ShippingStrategy shippingStrategy,
                               DiscountService discountService,
                               OrderManagementService orderManagementService,
-                              OrderItemManagementService orderItemManagementService
+                              OrderItemManagementService orderItemManagementService,
+                              ProductManagementService productManagementService
                               ) {
         this.cartRepository = Objects.requireNonNull(cartRepository, "cartRepository cannot be null");
         this.cartItemRepository = Objects.requireNonNull(cartItemRepository, "cartItemRepository cannot be null");
@@ -88,6 +92,7 @@ public class CheckouServiceImpl implements CheckoutService {
         this.discountService = Objects.requireNonNull(discountService, "discountService cannot be null");
         this.orderManagementService = Objects.requireNonNull(orderManagementService, "orderManagementService cannot be null");
         this.orderItemManagementService = Objects.requireNonNull(orderItemManagementService, "orderItemManagementService cannot be null");
+        this.productManagementService = Objects.requireNonNull(productManagementService, "productManagementService cannot be null");
     }
 //    check out
     @Override
@@ -107,8 +112,10 @@ public class CheckouServiceImpl implements CheckoutService {
         }
 //        check validate and get products
         List<Product> productList = new ArrayList<>();
+        List<Integer> quantityList = new ArrayList<>();
         for(CartItem cartItem : cartItemList){
             productList.add(cartItemManagementService.validatedCartItemToOrderItem(cartItem));
+            quantityList.add(cartItem.getNumber());
             // throw exception if
             // =>  product not exist | invalid quantity
         }
@@ -134,6 +141,11 @@ public class CheckouServiceImpl implements CheckoutService {
         }
         // change cart status into CHECKED_OUT
         cartManagementService.checkoutCart(cartId);
+        // decrease stock quantity of the quantity
+        index = 0;
+        for(Product product : productList){
+            productManagementService.decreaseStockQuantity(product.getId(),quantityList.get(index++));
+        }
         return newOrder;
     }
 }

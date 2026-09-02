@@ -24,7 +24,6 @@ public class JbdcCartRepository implements CartRepository {
         String sql = """
                 SELECT
                 id,
-                cart_id,
                 user_id,
                 created_at,
                 status

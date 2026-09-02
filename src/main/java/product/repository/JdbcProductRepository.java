@@ -22,7 +22,7 @@ public final class JbdcProductRepository implements ProductRepository {
     {
         String sql = """
                 INSERT INTO products(
-                product_name,
+                name,
                 quantity,
                 price,
                 status,
@@ -63,7 +63,7 @@ public final class JbdcProductRepository implements ProductRepository {
     {
         String sql = """
                 SELECT
-                product_name,
+                name,
                 quantity,
                 price,
                 status,
@@ -83,7 +83,7 @@ public final class JbdcProductRepository implements ProductRepository {
             {
                 return Optional.empty();
             }
-            ProductName product_name = new ProductName(rs.getString("product_name"));
+            ProductName name = new ProductName(rs.getString("name"));
             int quantity = rs.getInt("quantity");
             BigDecimal price = rs.getBigDecimal("price");
             ProductStatus status = ProductStatus.valueOf(rs.getString("status"));
@@ -97,7 +97,7 @@ public final class JbdcProductRepository implements ProductRepository {
                 {
                     data = new PhysicalProduct(
                             productId,
-                            product_name,
+                            name,
                             quantity,
                             price,
                             status,
@@ -109,7 +109,7 @@ public final class JbdcProductRepository implements ProductRepository {
                 else{
                     data = new DigitalProduct(
                             productId,
-                            product_name,
+                            name,
                             quantity,
                             price,
                             status,
@@ -136,7 +136,7 @@ public final class JbdcProductRepository implements ProductRepository {
         String sql = """
                 SELECT
                 id,
-                product_name,
+                name,
                 quantity,
                 price,
                 status,
@@ -153,7 +153,6 @@ public final class JbdcProductRepository implements ProductRepository {
                 return Optional.empty();
             }
             Long id = rs.getLong("id");
-            ProductName product_name = new ProductName(rs.getString("product_name"));
             int quantity = rs.getInt("quantity");
             BigDecimal price = rs.getBigDecimal("price");
             ProductType type = ProductType.valueOf(rs.getString("type"));
@@ -164,7 +163,7 @@ public final class JbdcProductRepository implements ProductRepository {
             {
                 return Optional.of(new PhysicalProduct(
                         id,
-                        product_name,
+                        name,
                         quantity,
                         price,
                         status,
@@ -176,7 +175,7 @@ public final class JbdcProductRepository implements ProductRepository {
             else{
                 return Optional.of(new DigitalProduct(
                         id,
-                        product_name,
+                        name,
                         quantity,
                         price,
                         status,
@@ -199,7 +198,7 @@ public final class JbdcProductRepository implements ProductRepository {
                 quantity = ?,
                 price = ?,
                 status = ?,
-                weight = ?,
+                weight = ?
                 WHERE id = ?;
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
