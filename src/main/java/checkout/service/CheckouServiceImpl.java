@@ -7,6 +7,7 @@ import cart_item.entities.CartItem;
 import cart_item.repository.CartItemRepository;
 import cart_item.service.CartItemManagementService;
 import checkout.entities.CheckoutItem;
+import common.DatabaseConnection;
 import discount.entities.Discount;
 import discount.service.DiscountService;
 import exception.resource.detailed_exceptions.CartNotFoundException;
@@ -16,6 +17,7 @@ import order_item.service.OrderItemManagementService;
 import product.entities.Product;
 import product.service.ProductManagementService;
 import shipping.ShippingStrategy;
+import transaction_management.TransactionManagement;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -72,7 +74,8 @@ public class CheckouServiceImpl implements CheckoutService {
     private final OrderItemManagementService orderItemManagementService;
     private final ProductManagementService productManagementService;
 //    constructor
-    public CheckouServiceImpl(CartRepository cartRepository,
+    public CheckouServiceImpl(
+                              CartRepository cartRepository,
                               CartItemRepository cartItemRepository,
                               CartManagementService cartManagementService,
                               CartItemManagementService cartItemManagementService,
@@ -95,56 +98,61 @@ public class CheckouServiceImpl implements CheckoutService {
 //    check out
     @Override
     public Order checkout(Long userId, Long cartId) {
-//        check null input
-        Objects.requireNonNull(userId, "userId is required");
-        Objects.requireNonNull(cartId, "cartId is required");
-        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException(cartId));
+        TransactionManagement transactionManagement = new TransactionManagement(DatabaseConnection.getConnection());
+        return transactionManagement.execute(
+                () -> {
+                    //        check null input
+                    Objects.requireNonNull(userId, "userId is required");
+                    Objects.requireNonNull(cartId, "cartId is required");
+                    Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException(cartId));
 //        check ownership
-        if(!Objects.equals(cart.getUserId(), userId)){
-            throw new IllegalArgumentException("UserId does not match the cart");
-        }
-        List<CartItem> cartItemList = cartItemRepository.findByCartId(cartId);
+                    if(!Objects.equals(cart.getUserId(), userId)){
+                        throw new IllegalArgumentException("UserId does not match the cart");
+                    }
+                    List<CartItem> cartItemList = cartItemRepository.findByCartId(cartId);
 //        check if the cart is empty
-        if(cartItemList.isEmpty()){
-            throw new IllegalStateException("Cart has no items"); // empty cart exception
-        }
+                    if(cartItemList.isEmpty()){
+                        throw new IllegalStateException("Cart has no items"); // empty cart exception
+                    }
 //        check validate and get products
-        List< CheckoutItem> checkoutItemList = new ArrayList<>();
-        for(CartItem cartItem : cartItemList){
-            Product product = cartItemManagementService.validatedCartItemToOrderItem(cartItem);
-            checkoutItemList.add(new CheckoutItem(cartItem, product));
-            // throw exception if
-            // =>  product not exist | invalid quantity
-        }
-        // calculate subtotal
-        BigDecimal subTotal = cartItemManagementService.calculateTotalPrice(cartItemList);
-        // calculate shipping fee
-        BigDecimal shippingFee = shippingStrategy.calculateShippingFee(cartItemList);
-        // calculate discount
-        BigDecimal discountAmount = discountService.calculateDiscountAmount(new Discount(subTotal,null));
-        // calculate totalPrice
-        BigDecimal totalPrice = subTotal.add(shippingFee).subtract(discountAmount);
-        // create order
-        Order newOrder =  orderManagementService.createOrder(userId,cartId,subTotal,shippingFee,discountAmount,totalPrice);
-        // create order items
-        int index = 0; // for product list
-        for(CartItem cartItem : cartItemList){
-            orderItemManagementService.createNewOrderItem(
-                    newOrder.getOrderId(),
-                    cartItem.getProductId(),
-                    cartItem.getNumber(),
-                    checkoutItemList.get(index++).product().getBasePrice()
-            );
-        }
-        // change cart status into CHECKED_OUT
-        cartManagementService.checkoutCart(cartId);
-        // decrease stock quantity of the quantity
-        for(CheckoutItem checkoutItem : checkoutItemList){
-            productManagementService.decreaseStockQuantity(  // -> could throw exception
-                    checkoutItem.product().getId(), // product Id
-                    checkoutItem.cartItem().getNumber() // decreased number
-            );
-        }
-        return newOrder;
+                    List< CheckoutItem> checkoutItemList = new ArrayList<>();
+                    for(CartItem cartItem : cartItemList){
+                        Product product = cartItemManagementService.validatedCartItemToOrderItem(cartItem);
+                        checkoutItemList.add(new CheckoutItem(cartItem, product));
+                        // throw exception if
+                        // =>  product not exist | invalid quantity
+                    }
+                    // calculate subtotal
+                    BigDecimal subTotal = cartItemManagementService.calculateTotalPrice(cartItemList);
+                    // calculate shipping fee
+                    BigDecimal shippingFee = shippingStrategy.calculateShippingFee(cartItemList);
+                    // calculate discount
+                    BigDecimal discountAmount = discountService.calculateDiscountAmount(new Discount(subTotal,null));
+                    // calculate totalPrice
+                    BigDecimal totalPrice = subTotal.add(shippingFee).subtract(discountAmount);
+                    // create order
+                    Order newOrder =  orderManagementService.createOrder(userId,cartId,subTotal,shippingFee,discountAmount,totalPrice);
+                    // create order items
+                    int index = 0; // for product list
+                    for(CartItem cartItem : cartItemList){
+                        orderItemManagementService.createNewOrderItem(
+                                newOrder.getOrderId(),
+                                cartItem.getProductId(),
+                                cartItem.getNumber(),
+                                checkoutItemList.get(index++).product().getBasePrice()
+                        );
+                    }
+                    // change cart status into CHECKED_OUT
+                    cartManagementService.checkoutCart(cartId);
+                    // decrease stock quantity of the quantity
+                    for(CheckoutItem checkoutItem : checkoutItemList){
+                        productManagementService.decreaseStockQuantity(  // -> could throw exception
+                                checkoutItem.product().getId(), // product Id
+                                checkoutItem.cartItem().getNumber() // decreased number
+                        );
+                    }
+                    return newOrder;
+                }
+        );
     }
 }
