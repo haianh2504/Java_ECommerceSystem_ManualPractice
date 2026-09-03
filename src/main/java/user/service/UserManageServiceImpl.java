@@ -1,5 +1,6 @@
 package user.service;
 
+import exception.resource.detailed_exceptions.UserNotFoundException;
 import user.repository.UserRepository;
 import user.entities.*;
 
@@ -18,7 +19,7 @@ public final class UserManageServiceImpl implements UserManagementService{
     public User findUserById(Long userId) {
         Objects.requireNonNull(userId,"UserId cannot be null");
         return userRepository.findById(userId).orElseThrow(
-                ()-> new RuntimeException("User not found")
+                ()-> new UserNotFoundException(userId)
         );
     }
 //    find user by Email
@@ -26,7 +27,7 @@ public final class UserManageServiceImpl implements UserManagementService{
     public User findUserByEmail(Email email) {
         Objects.requireNonNull(email, "User email cannot be null");
         return userRepository.findByEmail(email).orElseThrow(
-                () -> new RuntimeException("User not found")
+                () -> new UserNotFoundException(email)
         );
     }
     //    create new user after REGISTER
@@ -47,7 +48,7 @@ public final class UserManageServiceImpl implements UserManagementService{
     public void activateUser(Long userId, PhoneNumber phoneNumber) throws RuntimeException
     {
        User user = userRepository.findById(userId)
-               .orElseThrow(() -> new RuntimeException("User not found"));
+               .orElseThrow(() -> new UserNotFoundException(userId));
         user.activate(phoneNumber);
         userRepository.update(user);
     }
@@ -56,7 +57,7 @@ public final class UserManageServiceImpl implements UserManagementService{
     public void changeUserName(Long userId, PersonName newName)
     {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User not found")
+                () -> new UserNotFoundException(userId)
         );
         if(newName == null)
         {
@@ -69,7 +70,7 @@ public final class UserManageServiceImpl implements UserManagementService{
     @Override
     public void changePhoneNumber(Long userId, PhoneNumber newPhoneNumber){
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User not found")
+                () -> new UserNotFoundException(userId)
         );
         if(newPhoneNumber == null)
         {
@@ -82,7 +83,7 @@ public final class UserManageServiceImpl implements UserManagementService{
     @Override
     public void changeEmail(Long userId, Email newEmail){
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User not found")
+                () -> new UserNotFoundException(userId)
         );
         if(newEmail == null)
         {
@@ -96,14 +97,14 @@ public final class UserManageServiceImpl implements UserManagementService{
     public void promoteToAdmin(Long adminId,Long userId)
     {
         User admin = userRepository.findById(adminId).orElseThrow(
-                () -> new RuntimeException("User admin not found")
+                () -> new UserNotFoundException(adminId)
         );
         if(admin.getRole() != UserRole.ADMIN)
         {
             throw new IllegalStateException("Do not have permission to promote user");
         }
         User targetUser = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("Target user not found")
+                () -> new UserNotFoundException(userId)
         );
         if(targetUser.getStatus() == UserStatus.BANNED)
         {

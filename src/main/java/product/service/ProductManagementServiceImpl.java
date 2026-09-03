@@ -1,5 +1,6 @@
 package product.service;
 
+import exception.resource.detailed_exceptions.ProductNotFoundException;
 import product.entities.*;
 import product.repository.ProductRepository;
 
@@ -73,7 +74,7 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         Objects.requireNonNull(productId,"Product id cannot be null");
         Product product = productRepository.findById(productId)
                 .orElseThrow(
-                        () -> new IllegalStateException("Product not found")
+                        () -> new ProductNotFoundException(productId)
                 );
         return product;
     }
@@ -85,7 +86,7 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         // check for existence
         Product product = productRepository.findById(productId)
                 .orElseThrow(
-                        () -> new RuntimeException("Product not found")
+                        () -> new ProductNotFoundException(productId)
                 );
         product.changeProductName(newName);
         productRepository.update(product);
@@ -97,7 +98,7 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         Objects.requireNonNull(newWeight, "Product new weight cannot be null");
         Product product = productRepository.findById(productId)
                 .orElseThrow(
-                        () -> new RuntimeException("Product not found")
+                        () -> new ProductNotFoundException(productId)
                 );
         if(product instanceof DigitalProduct)
         {
@@ -117,7 +118,7 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         Objects.requireNonNull(newBasePrice,"Product baseprice cannot be null");
         Product product = productRepository.findById(productId)
                 .orElseThrow(
-                        () -> new RuntimeException("Product not found")
+                        () -> new ProductNotFoundException(productId)
                 );
         if(product.getBasePrice().compareTo(newBasePrice) == 0) return;
         product.setBasePrice(newBasePrice);
@@ -129,7 +130,7 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         Objects.requireNonNull(productId,"Product id cannot be null");
         Product product = productRepository.findById(productId)
                 .orElseThrow(
-                        () -> new RuntimeException("Product not found")
+                        () -> new ProductNotFoundException(productId)
                 );
         product.activate();
         productRepository.update(product);
@@ -141,7 +142,7 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         Objects.requireNonNull(productId,"Product id cannot be null");
         Product product = productRepository.findById(productId)
                 .orElseThrow(
-                        () -> new RuntimeException("Product not found")
+                        () -> new ProductNotFoundException(productId)
                 );
         product.deactivate();
         productRepository.update(product);
@@ -156,8 +157,13 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         }
         if(!productRepository.decreaseQuantity(productId, decreaseQuantity))
         {
+            // lỗi chưa được bóc tách rõ ràng
             throw new RuntimeException("Decrease quantity has failed due to insufficient quantity or product not found");
         }
+        if(productRepository.findById(productId).isEmpty()){
+            throw new ProductNotFoundException(productId);
+        }
+        productRepository.decreaseQuantity(productId, decreaseQuantity);
     }
 //    increase quantity
     @Override
@@ -166,6 +172,9 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         if(increaseQuantity <= 0)
         {
             throw new IllegalArgumentException("Product quantity cannot be negative");
+        }
+        if(productRepository.findById(productId).isEmpty()){
+            throw new ProductNotFoundException(productId);
         }
         productRepository.increaseQuantity(productId, increaseQuantity);
     }

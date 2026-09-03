@@ -3,7 +3,9 @@ package cart.service;
 import cart.entities.Cart;
 import cart.repository.CartRepository;
 import cart_item.repository.CartItemRepository;
+import exception.resource.detailed_exceptions.CartNotFoundException;
 
+import java.util.List;
 import java.util.Objects;
 
 public class CartManagementServiceImpl implements CartManagementService {
@@ -22,15 +24,22 @@ public class CartManagementServiceImpl implements CartManagementService {
         cartRepository.save(cart);
         return cart;
     }
-//    get cart by userID
+//    get carts by userID
     @Override
-    public Cart getCartByUserId(Long userId) {
+    public List<Cart> getCartByUserId(Long userId) {
         Objects.requireNonNull(userId, "userId cannot be null");
-        return cartRepository.findByUserId(userId).orElseThrow(
-                () -> new IllegalArgumentException("Cart for userId does not exists")
-        );
+        return List.copyOf(cartRepository.findByUserId(userId));
     }
-//    clear cart
+//    get cart by cartId
+    @Override
+    public Cart getCartById(Long cartId) {
+        Objects.requireNonNull(cartId, "cartId cannot be null");
+        return cartRepository.findById(cartId)
+                .orElseThrow(() -> new CartNotFoundException(cartId)
+                );
+    }
+
+    //    clear cart
     @Override
     public void clearCart(Long cartId) {
         cartItemRepository.deleteAllByCartId(cartId);
@@ -40,7 +49,7 @@ public class CartManagementServiceImpl implements CartManagementService {
     public void checkoutCart(Long cartId) {
         Objects.requireNonNull(cartId, "cartId cannot be null");
         Cart cart = cartRepository.findById(cartId).orElseThrow(
-                () -> new IllegalArgumentException("Cart does not exists")
+                () -> new CartNotFoundException(cartId)
         );
         cart.setCheckedOutStatus();
         cartRepository.update(cart);

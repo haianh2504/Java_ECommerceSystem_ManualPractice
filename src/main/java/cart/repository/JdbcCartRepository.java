@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -51,7 +53,7 @@ public class JdbcCartRepository implements CartRepository {
     }
 //    Find cart by userId
     @Override
-    public Optional<Cart> findByUserId(Long userId) {
+    public List<Cart> findByUserId(Long userId) {
         String sql = """
                 SELECT
                 id,
@@ -60,26 +62,27 @@ public class JdbcCartRepository implements CartRepository {
                 status
                 FROM carts WHERE user_id = ?;
                 """;
+        List<Cart> carts = new ArrayList<>();
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
             ps.setLong(1, userId);
             ResultSet rs = ps.executeQuery();
-            if(!rs.next())
+            while(rs.next())
             {
-                return Optional.empty();
+                carts.add(
+                        new Cart(
+                                rs.getLong("id"),
+                                rs.getLong("user_is"),
+                                rs.getTimestamp("created_at").toInstant(),
+                                CartStatus.valueOf(rs.getString("status"))
+                        )
+                );
             }
-            return Optional.of(
-                    new Cart(
-                            rs.getLong("id"),
-                            rs.getLong("user_id"),
-                            rs.getTimestamp("created_at").toInstant(),
-                            CartStatus.valueOf(rs.getString("status"))
-                    )
-            );
         }catch (SQLException e)
         {
             throw new RuntimeException("Error while searching cart by user id: " + e.getMessage(), e);
         }
+        return carts;
     }
 //    save cart
     @Override

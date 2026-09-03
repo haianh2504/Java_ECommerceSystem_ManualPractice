@@ -1,5 +1,6 @@
 package order.service;
 
+import exception.resource.detailed_exceptions.OrderNotFoundException;
 import order.entities.Order;
 import order.entities.OrderStatus;
 import order.repository.OrderRepository;
@@ -8,6 +9,7 @@ import shipping.ShippingStrategy;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class OrderManagementServiceImpl implements OrderManagementService {
     private final ShippingStrategy shippingStrategy;
@@ -55,6 +57,9 @@ public class OrderManagementServiceImpl implements OrderManagementService {
 //    delete order by id
     public void deleteOrderById(Long orderId) {
         Objects.requireNonNull(orderId, "orderId must not be null");
+        if(orderRepository.findByOrderId(orderId).isEmpty()){
+            throw new OrderNotFoundException(orderId);
+        }
         orderRepository.deleteByOrderId(orderId);
     }
 //    get order by order id
@@ -63,7 +68,7 @@ public class OrderManagementServiceImpl implements OrderManagementService {
         Objects.requireNonNull(orderId, "orderId must not be null");
         return orderRepository.findByOrderId(orderId)
                 .orElseThrow(
-                        () -> new RuntimeException("Order with id " + orderId + " not found")
+                        () -> new OrderNotFoundException(orderId)
                 );
     }
 

@@ -2,6 +2,8 @@ package cart_item.service;
 
 import cart_item.entities.CartItem;
 import cart_item.repository.CartItemRepository;
+import exception.resource.detailed_exceptions.CartItemNotFoundException;
+import exception.resource.detailed_exceptions.ProductNotFoundException;
 import product.entities.Product;
 import product.entities.ProductStatus;
 import product.repository.ProductRepository;
@@ -32,7 +34,7 @@ public class CartItemManagementServiceImpl implements  CartItemManagementService
         Objects.requireNonNull(cartId, "cartId cannot be null");
         Objects.requireNonNull(productId, "productId cannot be null");
         Product product = productRepository.findById(productId).orElseThrow(
-                () -> new RuntimeException("product with id: " + productId + " not found")
+                () -> new ProductNotFoundException(productId)
         );
         if(number<=0){
             throw new IllegalArgumentException("number must be greater than 0");
@@ -54,11 +56,11 @@ public class CartItemManagementServiceImpl implements  CartItemManagementService
 //    delete cartItem in cart
     @Override
     public void deleteCartItem(Long cartItemId) {
-        Objects.requireNonNull( cartItemId, "cartItemId cannot be null");
+        Objects.requireNonNull(cartItemId, "cartItemId cannot be null");
         if(cartItemRepository.findByCartItemId(cartItemId).isEmpty()){
-            throw new  RuntimeException("CartItem not found");
+            throw new CartItemNotFoundException(cartItemId);
         }
-        cartItemRepository.findByCartItemId(cartItemId);
+        cartItemRepository.deleteByCartItemId(cartItemId);
     }
 //    delete all cartItems in cart
     @Override

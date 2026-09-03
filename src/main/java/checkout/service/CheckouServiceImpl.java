@@ -9,6 +9,7 @@ import cart_item.service.CartItemManagementService;
 import checkout.entities.CheckoutItem;
 import discount.entities.Discount;
 import discount.service.DiscountService;
+import exception.resource.detailed_exceptions.CartNotFoundException;
 import order.entities.Order;
 import order.service.OrderManagementService;
 import order_item.service.OrderItemManagementService;
@@ -97,7 +98,7 @@ public class CheckouServiceImpl implements CheckoutService {
 //        check null input
         Objects.requireNonNull(userId, "userId is required");
         Objects.requireNonNull(cartId, "cartId is required");
-        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new RuntimeException("Cart with id " + cartId + " not found"));
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException(cartId));
 //        check ownership
         if(!Objects.equals(cart.getUserId(), userId)){
             throw new IllegalArgumentException("UserId does not match the cart");
@@ -105,7 +106,7 @@ public class CheckouServiceImpl implements CheckoutService {
         List<CartItem> cartItemList = cartItemRepository.findByCartId(cartId);
 //        check if the cart is empty
         if(cartItemList.isEmpty()){
-            throw new IllegalStateException("Cart has no items");
+            throw new IllegalStateException("Cart has no items"); // empty cart exception
         }
 //        check validate and get products
         List< CheckoutItem> checkoutItemList = new ArrayList<>();

@@ -1,5 +1,7 @@
 package order_item.service;
 
+import exception.resource.detailed_exceptions.OrderItemNotFoundException;
+import exception.resource.detailed_exceptions.OrderNotFoundException;
 import order_item.entities.OrderItem;
 import order_item.repository.OrderItemRepo;
 
@@ -7,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class OrderItemManagementServiceImpl implements OrderItemManagementService{
     private final OrderItemRepo orderItemRepo;
@@ -27,13 +30,13 @@ public class OrderItemManagementServiceImpl implements OrderItemManagementServic
             throw new IllegalArgumentException("unit_price must be greater than 0");
         }
         // check for existence
-        OrderItem orderItem = orderItemRepo.findByOrderIdAndProductId(orderId,productId).get();
-        if(orderItem != null){
+        Optional<OrderItem> orderItem = orderItemRepo.findByOrderIdAndProductId(orderId,productId);
+        if(orderItem.isPresent()){
             throw new IllegalArgumentException("orderItem is already exist");
         }
-        orderItem = new OrderItem(orderId,productId,quantity,unit_price);
-        orderItemRepo.save(orderItem);
-        return orderItem;
+        OrderItem orderItem1 = new OrderItem(orderId, productId, quantity, unit_price);
+        orderItemRepo.save(orderItem1);
+        return orderItem1;
     }
 //    delete Order Item
     @Override
@@ -42,7 +45,7 @@ public class OrderItemManagementServiceImpl implements OrderItemManagementServic
         Objects.requireNonNull(productId, "productId must not be null");
         // check for existence
         OrderItem orderItem = orderItemRepo.findByOrderIdAndProductId(orderId,productId)
-                .orElseThrow(() -> new IllegalArgumentException("orderItem not found"));
+                .orElseThrow(() -> OrderItemNotFoundException.byOrderIdAndProductId(orderId, productId));
         orderItemRepo.delete(orderId,productId);
     }
 //    get OrderItem by orderId and ProductId
@@ -51,7 +54,7 @@ public class OrderItemManagementServiceImpl implements OrderItemManagementServic
         Objects.requireNonNull(orderId, "orderId must not be null");
         Objects.requireNonNull(productId, "productId must not be null");
         return orderItemRepo.findByOrderIdAndProductId(orderId,productId)
-                .orElseThrow(() -> new IllegalArgumentException("orderItem not found")
+                .orElseThrow(() -> OrderItemNotFoundException.byOrderIdAndProductId(orderId, productId)
                 );
     }
 //    get list of order items by orderId
@@ -66,8 +69,8 @@ public class OrderItemManagementServiceImpl implements OrderItemManagementServic
     @Override
     public BigDecimal getTotalPrice(OrderItem orderItem) {
         Objects.requireNonNull(orderItem, "orderItem must not be null");
-        if(orderItemRepo.findByOrderId(orderItem.getOrderItemId()).isEmpty()){
-            throw new IllegalArgumentException("orderItem not found");
+        if(orderItemRepo.findByOrderIdAndProductId(orderItem.getOrderId(), orderItem.getProductId()).isEmpty()){
+            throw OrderItemNotFoundException.byOrderIdAndProductId(orderItem.getOrderItemId(),orderItem.getProductId());
         }
         return orderItem.getUnitPrice().multiply(
                 new BigDecimal(orderItem.getQuantity())
