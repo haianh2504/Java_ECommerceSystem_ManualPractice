@@ -155,15 +155,14 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         {
             throw new IllegalArgumentException("Product quantity cannot be negative");
         }
-        if(!productRepository.decreaseQuantity(productId, decreaseQuantity))
-        {
-            // lỗi chưa được bóc tách rõ ràng
-            throw new RuntimeException("Decrease quantity has failed due to insufficient quantity or product not found");
-        }
         if(productRepository.findById(productId).isEmpty()){
             throw new ProductNotFoundException(productId);
         }
-        productRepository.decreaseQuantity(productId, decreaseQuantity);
+        if(!productRepository.decreaseQuantity(productId, decreaseQuantity))
+        {
+            // lỗi chưa được bóc tách rõ ràng
+            throw new RuntimeException("Decrease quantity has failed due to insufficient quantity");
+        }
     }
 //    increase quantity
     @Override

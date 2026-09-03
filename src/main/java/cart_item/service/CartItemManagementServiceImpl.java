@@ -100,8 +100,9 @@ public class CartItemManagementServiceImpl implements  CartItemManagementService
             Product product = productRepository.findById(cartItem.getProductId()).orElseThrow(
                     () -> new RuntimeException("product with id: " + cartItem.getProductId() + " not found")
             );
-            subTotal.add(product.getBasePrice().multiply(new BigDecimal(cartItem.getNumber())));
+            subTotal = subTotal.add(product.getBasePrice().multiply(new BigDecimal(cartItem.getNumber())));
         }
+
         return subTotal;
     }
 //    validate cart item

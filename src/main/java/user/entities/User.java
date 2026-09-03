@@ -28,13 +28,6 @@ public final class User {
     public User(PasswordHash passwordHash,PersonName name,PhoneNumber phoneNumber, Email email, UserRole userRole)
     {
         validateBasicInfo(passwordHash,name,email,userRole);
-        if(phoneNumber == null)
-        {
-            throw new NullPointerException("User PhoneNumber cannot be null");
-        }
-        else if(phoneNumber.phoneNumber().isBlank()){
-            throw new IllegalArgumentException("User name cannot be blank");
-        }
         // id có thể null -> postgreSQL tự generate
         this.name = name;
         this.passwordHash = passwordHash;
