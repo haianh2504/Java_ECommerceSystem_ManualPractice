@@ -20,7 +20,7 @@ public class JdbcCartRepository implements CartRepository {
     }
 //    Find cart by id
     @Override
-    public Optional<Cart> findById(Long cartId) {
+    public Optional<Cart> findById(Long id) {
         String sql = """
                 SELECT
                 id,
@@ -32,7 +32,7 @@ public class JdbcCartRepository implements CartRepository {
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
             // add key word into ?
-            ps.setLong(1, cartId);
+            ps.setLong(1, id);
             // activate sql query
             ResultSet rs = ps.executeQuery();
             if(!rs.next()){
@@ -72,7 +72,7 @@ public class JdbcCartRepository implements CartRepository {
                 carts.add(
                         new Cart(
                                 rs.getLong("id"),
-                                rs.getLong("user_is"),
+                                rs.getLong("user_id"),
                                 rs.getTimestamp("created_at").toInstant(),
                                 CartStatus.valueOf(rs.getString("status"))
                         )

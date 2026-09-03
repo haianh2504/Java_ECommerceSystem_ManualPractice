@@ -67,11 +67,11 @@ public final class JdbcUserRepository implements UserRepository{
                 role = ?,
                 status = ?,
                 password_hash = ?
-                WHERE id = ?,
+                WHERE id = ?
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
-            ps.setString(1, user.getName().toString());
+            ps.setLong(1, user.getId());
             if(user.getPhoneNumber() == null)
             {
                 ps.setNull(2, Types.VARCHAR);

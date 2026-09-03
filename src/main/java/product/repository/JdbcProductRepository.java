@@ -135,7 +135,7 @@ public final class JdbcProductRepository implements ProductRepository {
                 type,
                 weight,
                 created_at
-                FROM products WHERE product_name = ?
+                FROM products WHERE name = ?
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
