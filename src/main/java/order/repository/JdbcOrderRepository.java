@@ -61,10 +61,7 @@ public class JdbcOrderRepository implements OrderRepository {
                     );
                 }
                 return null;
-            }catch(SQLException e){
-                throw new  RuntimeException("Error while return order: " + e.getMessage());
             }
-
         }catch (SQLException e)
         {
             throw new RuntimeException("Error while saving order: " + e.getMessage(),e);
@@ -80,22 +77,23 @@ public class JdbcOrderRepository implements OrderRepository {
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
             ps.setLong(1,userId);
-            ResultSet rs = ps.executeQuery();
-            while(rs.next())
-            {
-                orders.add(
-                        new Order(
-                                rs.getLong("id"),
-                                rs.getLong("user_id"),
-                                rs.getLong("cart_id"),
-                                OrderStatus.valueOf(rs.getString("status")),
-                                rs.getTimestamp("created_at").toInstant(),
-                                rs.getBigDecimal("sub_total"),
-                                rs.getBigDecimal("shipping_fee"),
-                                rs.getBigDecimal("discount_amount"),
-                                rs.getBigDecimal("total_price")
-                        )
-                );
+            try(ResultSet rs = ps.executeQuery()){ // try-with-resource
+                while(rs.next())
+                {
+                    orders.add(
+                            new Order(
+                                    rs.getLong("id"),
+                                    rs.getLong("user_id"),
+                                    rs.getLong("cart_id"),
+                                    OrderStatus.valueOf(rs.getString("status")),
+                                    rs.getTimestamp("created_at").toInstant(),
+                                    rs.getBigDecimal("sub_total"),
+                                    rs.getBigDecimal("shipping_fee"),
+                                    rs.getBigDecimal("discount_amount"),
+                                    rs.getBigDecimal("total_price")
+                            )
+                    );
+                }
             }
         }catch(SQLException e)
         {
@@ -112,24 +110,25 @@ public class JdbcOrderRepository implements OrderRepository {
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
            ps.setLong(1,orderId);
-           ResultSet rs = ps.executeQuery();
-           if(!rs.next())
+           try(ResultSet rs = ps.executeQuery();){
+               if(!rs.next())
                {
-               return Optional.empty();
+                   return Optional.empty();
                }
-           return Optional.of(
-                   new Order(
-                           rs.getLong("id"),
-                           rs.getLong("user_id"),
-                           rs.getLong("cart_id"),
-                           OrderStatus.valueOf(rs.getString("status")),
-                           rs.getTimestamp("created_at").toInstant(),
-                           rs.getBigDecimal("sub_total"),
-                           rs.getBigDecimal("shipping_fee"),
-                           rs.getBigDecimal("discount_amount"),
-                           rs.getBigDecimal("total_price")
-                   )
-           );
+               return Optional.of(
+                       new Order(
+                               rs.getLong("id"),
+                               rs.getLong("user_id"),
+                               rs.getLong("cart_id"),
+                               OrderStatus.valueOf(rs.getString("status")),
+                               rs.getTimestamp("created_at").toInstant(),
+                               rs.getBigDecimal("sub_total"),
+                               rs.getBigDecimal("shipping_fee"),
+                               rs.getBigDecimal("discount_amount"),
+                               rs.getBigDecimal("total_price")
+                       )
+               );
+           }
         }catch (SQLException e)
         {
             throw new RuntimeException("Error while fetching orders: " + e.getMessage(),e);
@@ -187,24 +186,25 @@ public class JdbcOrderRepository implements OrderRepository {
         {
          ps.setLong(1, userId);
          ps.setLong(2, cartId);
-         ResultSet rs = ps.executeQuery();
-         if(!rs.next())
-         {
-             return Optional.empty();
+         try(ResultSet rs = ps.executeQuery()){
+             if(!rs.next())
+             {
+                 return Optional.empty();
+             }
+             return Optional.of(
+                     new Order(
+                             rs.getLong("id"),
+                             rs.getLong("user_id"),
+                             rs.getLong("cart_id"),
+                             OrderStatus.valueOf(rs.getString("status")),
+                             rs.getTimestamp("created_at").toInstant(),
+                             rs.getBigDecimal("sub_total"),
+                             rs.getBigDecimal("shipping_fee"),
+                             rs.getBigDecimal("discount_amount"),
+                             rs.getBigDecimal("total_price")
+                     )
+             );
          }
-         return Optional.of(
-                 new Order(
-                         rs.getLong("id"),
-                         rs.getLong("user_id"),
-                         rs.getLong("cart_id"),
-                         OrderStatus.valueOf(rs.getString("status")),
-                         rs.getTimestamp("created_at").toInstant(),
-                         rs.getBigDecimal("sub_total"),
-                         rs.getBigDecimal("shipping_fee"),
-                         rs.getBigDecimal("discount_amount"),
-                         rs.getBigDecimal("total_price")
-                 )
-         );
         } catch (SQLException e) {
             throw new RuntimeException("Error while fetching orders by user and cart id: " + e.getMessage(),e);
         }

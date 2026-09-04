@@ -123,43 +123,45 @@ public final class JdbcUserRepository implements UserRepository{
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
             ps.setLong(1, id);
-            ResultSet rs = ps.executeQuery();
-            if(!rs.next()){
-                return Optional.empty();
-            }
-            PersonName name = new PersonName(rs.getString("name"));
-            Email email = new Email(rs.getString("email"));
-            UserRole role = UserRole.valueOf(rs.getString("role"));
-            UserStatus status = UserStatus.valueOf(rs.getString("status"));
-            PasswordHash password_hash = new PasswordHash(rs.getString("password_hash"));
-            Instant created_at = rs.getTimestamp("created_at").toInstant();
-            String sqlPhone = rs.getString("phone_number");
-            if(sqlPhone != null){
-                PhoneNumber phone_number = new PhoneNumber(sqlPhone);
-                User sqlUser = new User(
-                        id,
-                        password_hash,
-                        name,
-                        phone_number,
-                        email,
-                        role,
-                        status,
-                        created_at
-                        );
-                return Optional.of(sqlUser);
-            }
-            else{
-                User sqlUser = new User(
-                        id,
-                        password_hash,
-                        name,
-                        null,
-                        email,
-                        role,
-                        status,
-                        created_at
-                        );
-                return Optional.of(sqlUser);
+            try(ResultSet rs = ps.executeQuery())
+            {
+                if(!rs.next()){
+                    return Optional.empty();
+                }
+                PersonName name = new PersonName(rs.getString("name"));
+                Email email = new Email(rs.getString("email"));
+                UserRole role = UserRole.valueOf(rs.getString("role"));
+                UserStatus status = UserStatus.valueOf(rs.getString("status"));
+                PasswordHash password_hash = new PasswordHash(rs.getString("password_hash"));
+                Instant created_at = rs.getTimestamp("created_at").toInstant();
+                String sqlPhone = rs.getString("phone_number");
+                if(sqlPhone != null){
+                    PhoneNumber phone_number = new PhoneNumber(sqlPhone);
+                    User sqlUser = new User(
+                            id,
+                            password_hash,
+                            name,
+                            phone_number,
+                            email,
+                            role,
+                            status,
+                            created_at
+                    );
+                    return Optional.of(sqlUser);
+                }
+                else{
+                    User sqlUser = new User(
+                            id,
+                            password_hash,
+                            name,
+                            null,
+                            email,
+                            role,
+                            status,
+                            created_at
+                    );
+                    return Optional.of(sqlUser);
+                }
             }
         }catch (SQLException e)
         {
@@ -187,44 +189,45 @@ public final class JdbcUserRepository implements UserRepository{
             // gán email vào ô ?
             ps.setString(1, email.toString());
             // chạy lệnh SELECT
-            ResultSet rs = ps.executeQuery();
-            if(!rs.next()) return Optional.empty();
-            // lay thuoc tinh
-            Long id = rs.getLong("id");
-            PersonName name = new PersonName(rs.getString("name"));
-            Email user_email = new Email(rs.getString("email"));
-            UserRole role = UserRole.valueOf(rs.getString("role"));
-            UserStatus status = UserStatus.valueOf(rs.getString("status"));
-            PasswordHash password_hash = new PasswordHash(rs.getString("password_hash"));
-            Instant created_at = rs.getTimestamp("created_at").toInstant();
-            String sqlPhone = rs.getString("phone_number");
-            if(sqlPhone != null)
+            try(ResultSet rs = ps.executeQuery())
             {
-                PhoneNumber phone_number = new PhoneNumber(sqlPhone);
-                return Optional.of(new User(
-                        id,
-                        password_hash,
-                        name,
-                        phone_number,
-                        user_email,
-                        role,
-                        status,
-                        created_at
-                ));
+                if(!rs.next()) return Optional.empty();
+                // lay thuoc tinh
+                Long id = rs.getLong("id");
+                PersonName name = new PersonName(rs.getString("name"));
+                Email user_email = new Email(rs.getString("email"));
+                UserRole role = UserRole.valueOf(rs.getString("role"));
+                UserStatus status = UserStatus.valueOf(rs.getString("status"));
+                PasswordHash password_hash = new PasswordHash(rs.getString("password_hash"));
+                Instant created_at = rs.getTimestamp("created_at").toInstant();
+                String sqlPhone = rs.getString("phone_number");
+                if(sqlPhone != null)
+                {
+                    PhoneNumber phone_number = new PhoneNumber(sqlPhone);
+                    return Optional.of(new User(
+                            id,
+                            password_hash,
+                            name,
+                            phone_number,
+                            user_email,
+                            role,
+                            status,
+                            created_at
+                    ));
+                }
+                else {
+                    return Optional.of(new User(
+                            id,
+                            password_hash,
+                            name,
+                            null,
+                            user_email,
+                            role,
+                            status,
+                            created_at
+                    ));
+                }
             }
-            else {
-                return Optional.of(new User(
-                        id,
-                        password_hash,
-                        name,
-                        null,
-                        user_email,
-                        role,
-                        status,
-                        created_at
-                ));
-            }
-
         }catch(SQLException e)
         {
             throw new RuntimeException("Error while searching user: " + e.getMessage(),e);

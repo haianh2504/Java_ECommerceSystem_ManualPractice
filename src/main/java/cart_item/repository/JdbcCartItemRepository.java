@@ -32,15 +32,17 @@ public class JdbcCartItemRepository implements CartItemRepository {
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
             ps.setLong(1, cartId);
-            ResultSet rs = ps.executeQuery();
-            while(rs.next())
+            try(ResultSet rs = ps.executeQuery())
             {
-                cartItems.add(new CartItem(
-                        rs.getLong("id"),
-                        rs.getLong("cart_id"),
-                        rs.getLong("product_id"),
-                        rs.getInt("quantity")
-                ));
+                while(rs.next())
+                {
+                    cartItems.add(new CartItem(
+                            rs.getLong("id"),
+                            rs.getLong("cart_id"),
+                            rs.getLong("product_id"),
+                            rs.getInt("quantity")
+                    ));
+                }
             }
         }catch (SQLException e)
         {
@@ -64,17 +66,19 @@ public class JdbcCartItemRepository implements CartItemRepository {
         {
             ps.setLong(1, cartId);
             ps.setLong(2, productId);
-            ResultSet rs = ps.executeQuery();
-            if(!rs.next()){
-                return Optional.empty();
+            try(ResultSet rs = ps.executeQuery())
+            {
+                if(!rs.next()){
+                    return Optional.empty();
+                }
+                return Optional.of(
+                        new CartItem(rs.getLong("id"),
+                                rs.getLong("cart_id"),
+                                rs.getLong("product_id"),
+                                rs.getInt("quantity")
+                        )
+                );
             }
-            return Optional.of(
-                    new CartItem(rs.getLong("id"),
-                            rs.getLong("cart_id"),
-                            rs.getLong("product_id"),
-                            rs.getInt("quantity")
-                    )
-            );
         }catch (SQLException e)
         {
             throw new RuntimeException("Error while finding cartItem by cartId and productId: " + e.getMessage(), e);
@@ -94,18 +98,20 @@ public class JdbcCartItemRepository implements CartItemRepository {
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
             ps.setLong(1,cartItemId);
-            ResultSet rs = ps.executeQuery();
-            if(!rs.next()){
-                return Optional.empty();
+            try(ResultSet rs = ps.executeQuery())
+            {
+                if(!rs.next()){
+                    return Optional.empty();
+                }
+                return Optional.of(
+                        new CartItem(
+                                rs.getLong("id"),
+                                rs.getLong("cart_id"),
+                                rs.getLong("product_id"),
+                                rs.getInt("quantity")
+                        )
+                );
             }
-            return Optional.of(
-                    new CartItem(
-                            rs.getLong("id"),
-                            rs.getLong("cart_id"),
-                            rs.getLong("product_id"),
-                            rs.getInt("quantity")
-                    )
-            );
         }catch (SQLException e)
         {
             throw new RuntimeException("Error while finding cartItem by cartItemId: " + e.getMessage(), e);

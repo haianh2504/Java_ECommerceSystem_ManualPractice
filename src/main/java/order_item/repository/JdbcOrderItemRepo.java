@@ -55,20 +55,21 @@ public class JdbcOrderItemRepo implements OrderItemRepo {
         {
             ps.setLong(1,orderId);
             ps.setLong(2,productId);
-            ResultSet rs = ps.executeQuery();
-            if(!rs.next()){
-                return Optional.empty();
+            try(ResultSet rs = ps.executeQuery())
+            {
+                if(!rs.next()){
+                    return Optional.empty();
+                }
+                return Optional.of(
+                        new OrderItem(
+                                rs.getLong("id"),
+                                rs.getLong("order_id"),
+                                rs.getLong("product_id"),
+                                rs.getInt("quantity"),
+                                rs.getBigDecimal("unit_price")
+                        )
+                );
             }
-            return Optional.of(
-                    new OrderItem(
-                            rs.getLong("id"),
-                            rs.getLong("order_id"),
-                            rs.getLong("product_id"),
-                            rs.getInt("quantity"),
-                            rs.getBigDecimal("unit_price")
-                    )
-            );
-
         }catch (SQLException e)
         {
             throw new RuntimeException("Error while finding order item: " + e.getMessage(), e);
@@ -90,17 +91,19 @@ public class JdbcOrderItemRepo implements OrderItemRepo {
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
             ps.setLong(1,orderId);
-            ResultSet rs = ps.executeQuery();
-            while(rs.next()){
-                orderItems.add(
-                        new OrderItem(
-                               rs.getLong("id"),
-                               rs.getLong("order_id"),
-                               rs.getLong("product_id"),
-                               rs.getInt("quantity"),
-                               rs.getBigDecimal("unit_price")
-                        )
-                );
+            try(ResultSet rs = ps.executeQuery())
+            {
+                while(rs.next()){
+                    orderItems.add(
+                            new OrderItem(
+                                    rs.getLong("id"),
+                                    rs.getLong("order_id"),
+                                    rs.getLong("product_id"),
+                                    rs.getInt("quantity"),
+                                    rs.getBigDecimal("unit_price")
+                            )
+                    );
+                }
             }
         }catch (SQLException e)
         {

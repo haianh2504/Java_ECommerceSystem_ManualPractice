@@ -34,18 +34,20 @@ public class JdbcCartRepository implements CartRepository {
             // add key word into ?
             ps.setLong(1, id);
             // activate sql query
-            ResultSet rs = ps.executeQuery();
-            if(!rs.next()){
-                return Optional.empty();
+            try(ResultSet rs = ps.executeQuery())
+            {
+                if(!rs.next()){
+                    return Optional.empty();
+                }
+                return Optional.of(
+                        new Cart(
+                                rs.getLong("id"),
+                                rs.getLong("user_id"),
+                                rs.getTimestamp("created_at").toInstant(),
+                                CartStatus.valueOf(rs.getString("status"))
+                        )
+                );
             }
-            return Optional.of(
-                    new Cart(
-                            rs.getLong("id"),
-                            rs.getLong("user_id"),
-                            rs.getTimestamp("created_at").toInstant(),
-                            CartStatus.valueOf(rs.getString("status"))
-                    )
-            );
         }catch (SQLException e)
         {
             throw new RuntimeException("Error while searching cart by id: " + e.getMessage(), e);
@@ -66,17 +68,19 @@ public class JdbcCartRepository implements CartRepository {
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
             ps.setLong(1, userId);
-            ResultSet rs = ps.executeQuery();
-            while(rs.next())
+            try(ResultSet rs = ps.executeQuery())
             {
-                carts.add(
-                        new Cart(
-                                rs.getLong("id"),
-                                rs.getLong("user_id"),
-                                rs.getTimestamp("created_at").toInstant(),
-                                CartStatus.valueOf(rs.getString("status"))
-                        )
-                );
+                while(rs.next())
+                {
+                    carts.add(
+                            new Cart(
+                                    rs.getLong("id"),
+                                    rs.getLong("user_id"),
+                                    rs.getTimestamp("created_at").toInstant(),
+                                    CartStatus.valueOf(rs.getString("status"))
+                            )
+                    );
+                }
             }
         }catch (SQLException e)
         {

@@ -108,44 +108,46 @@ public final class JdbcProductRepository implements ProductRepository {
             // gán id vào ?
             ps.setLong(1, productId);
             // chạy lệnh SELECT
-            ResultSet rs = ps.executeQuery();
-            if(!rs.next())
+            try(ResultSet rs = ps.executeQuery())
             {
-                return Optional.empty();
+                if(!rs.next())
+                {
+                    return Optional.empty();
+                }
+                ProductName name = new ProductName(rs.getString("name"));
+                int quantity = rs.getInt("quantity");
+                BigDecimal price = rs.getBigDecimal("price");
+                ProductStatus status = ProductStatus.valueOf(rs.getString("status"));
+                ProductType type = ProductType.valueOf(rs.getString("type"));
+                Instant created_at = rs.getTimestamp("created_at").toInstant();
+                BigDecimal weight = rs.getBigDecimal("weight");
+                Product data;
+                if(weight != null)
+                {
+                    data = new PhysicalProduct(
+                            productId,
+                            name,
+                            quantity,
+                            price,
+                            status,
+                            type,
+                            created_at,
+                            weight
+                    );
+                }
+                else{
+                    data = new DigitalProduct(
+                            productId,
+                            name,
+                            quantity,
+                            price,
+                            status,
+                            type,
+                            created_at
+                    );
+                }
+                return Optional.of(data);
             }
-            ProductName name = new ProductName(rs.getString("name"));
-            int quantity = rs.getInt("quantity");
-            BigDecimal price = rs.getBigDecimal("price");
-            ProductStatus status = ProductStatus.valueOf(rs.getString("status"));
-            ProductType type = ProductType.valueOf(rs.getString("type"));
-            Instant created_at = rs.getTimestamp("created_at").toInstant();
-            BigDecimal weight = rs.getBigDecimal("weight");
-            Product data;
-            if(weight != null)
-            {
-                data = new PhysicalProduct(
-                        productId,
-                        name,
-                        quantity,
-                        price,
-                        status,
-                        type,
-                        created_at,
-                        weight
-                );
-            }
-            else{
-                data = new DigitalProduct(
-                        productId,
-                        name,
-                        quantity,
-                        price,
-                        status,
-                        type,
-                        created_at
-                );
-            }
-            return Optional.of(data);
         }catch(SQLException e)
         {
             throw new RuntimeException("Error while searching for products: " + e.getMessage(), e);
@@ -170,40 +172,42 @@ public final class JdbcProductRepository implements ProductRepository {
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
             ps.setString(1, name.toString());
-            ResultSet rs = ps.executeQuery();
-            if(!rs.next()){
-                return Optional.empty();
-            }
-            Long id = rs.getLong("id");
-            int quantity = rs.getInt("quantity");
-            BigDecimal price = rs.getBigDecimal("price");
-            ProductType type = ProductType.valueOf(rs.getString("type"));
-            Instant created_at = rs.getTimestamp("created_at").toInstant();
-            ProductStatus status = ProductStatus.valueOf(rs.getString("status"));
-            BigDecimal weight = rs.getBigDecimal("weight");
-            if(type == ProductType.PHYSICAL)
+            try(ResultSet rs = ps.executeQuery())
             {
-                return Optional.of(new PhysicalProduct(
-                        id,
-                        name,
-                        quantity,
-                        price,
-                        status,
-                        type,
-                        created_at,
-                        weight
-                ));
-            }
-            else{
-                return Optional.of(new DigitalProduct(
-                        id,
-                        name,
-                        quantity,
-                        price,
-                        status,
-                        type,
-                        created_at
-                ));
+                if(!rs.next()){
+                    return Optional.empty();
+                }
+                Long id = rs.getLong("id");
+                int quantity = rs.getInt("quantity");
+                BigDecimal price = rs.getBigDecimal("price");
+                ProductType type = ProductType.valueOf(rs.getString("type"));
+                Instant created_at = rs.getTimestamp("created_at").toInstant();
+                ProductStatus status = ProductStatus.valueOf(rs.getString("status"));
+                BigDecimal weight = rs.getBigDecimal("weight");
+                if(type == ProductType.PHYSICAL)
+                {
+                    return Optional.of(new PhysicalProduct(
+                            id,
+                            name,
+                            quantity,
+                            price,
+                            status,
+                            type,
+                            created_at,
+                            weight
+                    ));
+                }
+                else{
+                    return Optional.of(new DigitalProduct(
+                            id,
+                            name,
+                            quantity,
+                            price,
+                            status,
+                            type,
+                            created_at
+                    ));
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error while searching for product: " + e.getMessage(),e);
