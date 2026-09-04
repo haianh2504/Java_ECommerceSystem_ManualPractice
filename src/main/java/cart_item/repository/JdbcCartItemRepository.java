@@ -89,7 +89,7 @@ public class JdbcCartItemRepository implements CartItemRepository {
                 cart_id,
                 product_id,
                 quantity
-                FROM cart_items WHERE cart_item_id = ?;
+                FROM cart_items WHERE id = ?;
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
@@ -113,17 +113,29 @@ public class JdbcCartItemRepository implements CartItemRepository {
     }
 //    save cart item
     @Override
-    public void save(CartItem cartItem) {
+    public CartItem save(CartItem cartItem) {
         String sql = """
                 INSERT INTO cart_items(cart_id, product_id, quantity)
-                VALUES(?, ?, ?);
+                VALUES(?, ?, ?)
+                RETURNING id
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
             ps.setLong(1,cartItem.getCartId());
             ps.setLong(2, cartItem.getProductId());
             ps.setLong(3, cartItem.getNumber());
-            ps.executeUpdate();
+            try(ResultSet rs = ps.executeQuery())
+            {
+                if(!rs.next()){
+                    throw new RuntimeException("Error while saving and returning cartItem");
+                }
+                return new CartItem(
+                        rs.getLong("id"),
+                        cartItem.getCartId(),
+                        cartItem.getProductId(),
+                        cartItem.getNumber()
+                );
+            }
         }catch (SQLException e)
         {
             throw new RuntimeException("Error while saving cartItem: " + e.getMessage(), e);
@@ -168,7 +180,7 @@ public class JdbcCartItemRepository implements CartItemRepository {
     public void deleteByCartItemId(Long cartItemId) {
         String sql = """
                 DELETE FROM cart_items
-                WHERE cart_item_id = ?;
+                WHERE id = ?;
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
@@ -186,7 +198,7 @@ public class JdbcCartItemRepository implements CartItemRepository {
         String sql = """
                 UPDATE cart_items
                 SET quantity = ?
-                WHERE cart_item_id = ?;
+                WHERE id = ?;
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {

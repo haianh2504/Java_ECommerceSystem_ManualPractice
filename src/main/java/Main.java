@@ -8,13 +8,28 @@ import cart_item.repository.CartItemRepository;
 import cart_item.repository.JdbcCartItemRepository;
 import cart_item.service.CartItemManagementService;
 import cart_item.service.CartItemManagementServiceImpl;
+import checkout.service.CheckouServiceImpl;
+import checkout.service.CheckoutService;
 import common.DatabaseConnection;
+import discount.service.DiscountService;
+import discount.service.DiscountServiceImpl;
+import order.repository.JdbcOrderRepository;
+import order.repository.OrderRepository;
+import order.service.OrderManagementService;
+import order.service.OrderManagementServiceImpl;
+import order_item.repository.JdbcOrderItemRepo;
+import order_item.repository.OrderItemRepo;
+import order_item.service.OrderItemManagementService;
+import order_item.service.OrderItemManagementServiceImpl;
 import product.entities.Product;
 import product.entities.ProductName;
 import product.repository.JdbcProductRepository;
 import product.repository.ProductRepository;
 import product.service.ProductManagementService;
 import product.service.ProductManagementServiceImpl;
+import shipping.ShippingStrategy;
+import shipping.WeightBasedStrategy;
+import transaction_management.TransactionManagement;
 import user.entities.*;
 import user.repository.JdbcUserRepository;
 import user.repository.UserRepository;
@@ -33,6 +48,8 @@ public class Main {
         CartRepository cartRepository = new JdbcCartRepository(connection);
         CartItemRepository cartItemRepository = new JdbcCartItemRepository(connection);
         ProductRepository productRepository = new JdbcProductRepository(connection);
+        OrderRepository orderRepository = new JdbcOrderRepository(connection);
+        OrderItemRepo orderItemRepository = new JdbcOrderItemRepo(connection);
         // cart service setting up
         CartManagementService cartManagementService = new CartManagementServiceImpl(cartRepository,cartItemRepository);
         // cart Item service setting up
@@ -41,12 +58,35 @@ public class Main {
         UserManagementService userManageService = new UserManageServiceImpl(userRepository);
         // product service setting up
         ProductManagementService productManagementService = new ProductManagementServiceImpl(productRepository);
+        // checkout dependencies
+        ShippingStrategy shippingStrategy = new WeightBasedStrategy(BigDecimal.valueOf(20_000));
+        DiscountService discountService = new DiscountServiceImpl();
+        OrderManagementService orderManagementService = new OrderManagementServiceImpl(orderRepository, shippingStrategy);
+        OrderItemManagementService orderItemManagementService = new OrderItemManagementServiceImpl(orderItemRepository);
+        // checkout service setting up
+        CheckoutService checkoutService = new CheckouServiceImpl(
+                cartRepository,
+                cartItemRepository,
+                cartManagementService,
+                cartItemManagementService,
+                shippingStrategy,
+                discountService,
+                orderManagementService,
+                orderItemManagementService,
+                productManagementService
+        );
         // create product
-        Product product = productManagementService.createNewPhysicalProduct(
+        Product product1 = productManagementService.createNewPhysicalProduct(
                 new ProductName("Iphone 16 pro max"),
                 20,
-                new BigDecimal(20_000_000),
-                new BigDecimal(0.200)
+                BigDecimal.valueOf(20_000_000),
+                BigDecimal.valueOf(0.200)
+        );
+        Product product2 = productManagementService.createNewPhysicalProduct(
+                new ProductName("Macbook pro m1"),
+                50,
+                BigDecimal.valueOf(30_000_000),
+                BigDecimal.valueOf(1.200)
         );
         // create user
         User user = userManageService.createUser(
@@ -59,13 +99,18 @@ public class Main {
         // create cart for the user
         Cart cart = cartManagementService.createCart(user.getId());
         // create cart item
-        CartItem cartItem = cartItemManagementService.addNewCartItem(
+        CartItem cartItem1 = cartItemManagementService.addNewCartItem(
                 cart.getCartId(),
-                product.getId(),
-                2
+                product1.getId(),
+                5
+        );
+        CartItem cartItem2 = cartItemManagementService.addNewCartItem(
+                cart.getCartId(),
+                product2.getId(),
+                10
         );
         // khi bấm checkout
-
+        checkoutService.checkout(user.getId(),cart.getCartId());
 
     }
 }

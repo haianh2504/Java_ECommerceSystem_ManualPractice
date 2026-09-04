@@ -87,7 +87,7 @@ public class JdbcOrderRepository implements OrderRepository {
                         new Order(
                                 rs.getLong("id"),
                                 rs.getLong("user_id"),
-                                rs.getLong("order_id"),
+                                rs.getLong("cart_id"),
                                 OrderStatus.valueOf(rs.getString("status")),
                                 rs.getTimestamp("created_at").toInstant(),
                                 rs.getBigDecimal("sub_total"),
@@ -107,7 +107,7 @@ public class JdbcOrderRepository implements OrderRepository {
     @Override
     public Optional<Order> findByOrderId(Long orderId) {
         String sql = """
-                SELECT * FROM orders WHERE order_id = ?;
+                SELECT * FROM orders WHERE id = ?;
         """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
@@ -121,7 +121,7 @@ public class JdbcOrderRepository implements OrderRepository {
                    new Order(
                            rs.getLong("id"),
                            rs.getLong("user_id"),
-                           rs.getLong("order_id"),
+                           rs.getLong("cart_id"),
                            OrderStatus.valueOf(rs.getString("status")),
                            rs.getTimestamp("created_at").toInstant(),
                            rs.getBigDecimal("sub_total"),
@@ -139,7 +139,7 @@ public class JdbcOrderRepository implements OrderRepository {
     @Override
     public void deleteByOrderId(Long orderId) {
         String sql = """
-                DELETE FROM orders WHERE order_id = ?;
+                DELETE FROM orders WHERE id = ?;
         """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
@@ -161,7 +161,7 @@ public class JdbcOrderRepository implements OrderRepository {
                 shipping_fee = ?,
                 discount_amount = ?,
                 total_price = ?
-                WHERE order_id = ?;
+                WHERE id = ?;
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {

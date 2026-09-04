@@ -17,7 +17,7 @@ public final class JdbcUserRepository implements UserRepository{
     }
 //    save user
     @Override
-    public void save(User user)
+    public User save(User user)
     {
         // SQL
         String sql = """
@@ -31,6 +31,7 @@ public final class JdbcUserRepository implements UserRepository{
                 created_at
                 )
                 VALUES(?,?,?,?,?,?,?)
+                RETURNING id
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
@@ -47,8 +48,26 @@ public final class JdbcUserRepository implements UserRepository{
             ps.setString(6, user.getPasswordHash().toString());
             // from: Instant | valueOf: LocalDateTime
             ps.setTimestamp(7,java.sql.Timestamp.from(user.getTimeCreated()));
-            // Thực thi câu lệnh INSERT xuống Postgre
-            ps.executeUpdate();
+            // Thực thi câu lệnh INSERT xuống DB
+            try(ResultSet rs = ps.executeQuery()){
+                if(rs.next()){
+                    return new User(
+                            rs.getLong("id"),
+                            user.getPasswordHash(),
+                            user.getName(),
+                            user.getPhoneNumber(),
+                            user.getEmail(),
+                            user.getRole(),
+                            user.getStatus(),
+                            user.getTimeCreated()
+                    );
+                }
+                else{
+                    throw new SQLException("Saving user failed, no ID obtained");
+                }
+            }catch(SQLException e){
+                throw new SQLException("Saving and Returning user failed", e);
+            }
         }catch(SQLException e)
         {
             throw new RuntimeException("Error while saving user into DATABASE: " + e.getMessage(),e);
@@ -71,7 +90,7 @@ public final class JdbcUserRepository implements UserRepository{
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
-            ps.setLong(1, user.getId());
+            ps.setString(1, user.getName().toString());
             if(user.getPhoneNumber() == null)
             {
                 ps.setNull(2, Types.VARCHAR);
@@ -81,6 +100,7 @@ public final class JdbcUserRepository implements UserRepository{
             ps.setString(4,user.getRole().name());
             ps.setString(5, user.getStatus().name());
             ps.setString(6,user.getPasswordHash().toString());
+            ps.setLong(7, user.getId());
             ps.executeUpdate();
         } catch (SQLException e){
             throw new RuntimeException("Error while updating user's information: " + e.getMessage(),e);
@@ -102,6 +122,7 @@ public final class JdbcUserRepository implements UserRepository{
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
+            ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
             if(!rs.next()){
                 return Optional.empty();

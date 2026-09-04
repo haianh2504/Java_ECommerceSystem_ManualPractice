@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface ProductRepository {
 //    Save Product
-    public void save(Product product);
+    public Product save(Product product);
 //    find product by Id
     public Optional<Product> findById(Long productId);
 //    find product by name

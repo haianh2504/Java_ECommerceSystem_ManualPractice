@@ -12,7 +12,7 @@ public interface CartRepository {
 //    Find cart by userId
     public List<Cart> findByUserId(Long userId);
 //    save cart
-    public void save(Cart cart);
+    public Cart save(Cart cart);
 //    delete cart
     public void deleteById(Long cartId);
 //    update cart

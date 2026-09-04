@@ -17,7 +17,7 @@ public interface CartItemRepository {
     public Optional<CartItem> findByCartItemId(Long cartItemId);
 
 //    save cart item
-    public void save(CartItem cartItem);
+    public CartItem save(CartItem cartItem);
 
 //    delete cart item by cart and product id - need auth
     public void deleteByCartIdAndProductId(Long cartId, Long productId);

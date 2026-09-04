@@ -38,9 +38,8 @@ public final class UserManageServiceImpl implements UserManagementService{
         {
             throw new IllegalStateException("This email has already been used");
         }
-        User user = new User(passwordHash,name,phoneNumber,email,userRole);
         // phoneNumber is optional
-        userRepository.save(user);
+        User user = userRepository.save(new User(passwordHash,name,phoneNumber,email,userRole));
         return user;
     }
 //    activate User

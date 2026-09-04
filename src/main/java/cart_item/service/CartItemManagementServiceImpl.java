@@ -46,10 +46,9 @@ public class CartItemManagementServiceImpl implements  CartItemManagementService
         if(cartItemRepository.findByCartIdAndProductId(cartId, productId).isPresent()){
             throw new RuntimeException("CartItem already exists");
         }
-        // add
-        CartItem cartItem = new CartItem(cartId, productId, number);
-        cartItemRepository.save(
-             cartItem
+        // save
+        CartItem cartItem = cartItemRepository.save(
+                new CartItem(cartId, productId, number)
         );
         return cartItem;
     }

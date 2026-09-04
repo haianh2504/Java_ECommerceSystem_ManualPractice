@@ -18,7 +18,7 @@ public final class JdbcProductRepository implements ProductRepository {
     }
 //    save Product
     @Override
-    public void save(Product product)
+    public Product save(Product product)
     {
         String sql = """
                 INSERT INTO products(
@@ -31,6 +31,7 @@ public final class JdbcProductRepository implements ProductRepository {
                 weight
                 )
                 VALUES(?,?,?,?,?,?,?)
+                RETURNING id
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
@@ -44,13 +45,42 @@ public final class JdbcProductRepository implements ProductRepository {
             if(product instanceof PhysicalProduct)
             {
                 ps.setBigDecimal(7,((PhysicalProduct) product).getWeight());
+                // Thực thi câu lệnh INSERT xuống Postgre
+                try(ResultSet rs = ps.executeQuery())
+                {
+                    if(!rs.next()){
+                        throw new SQLException("Saving and return product failed");
+                    }
+                    return new PhysicalProduct(
+                            rs.getLong("id"),
+                            product.getName(),
+                            product.getQuantity(),
+                            product.getBasePrice(),
+                            product.getStatus(),
+                            product.getProductType(),
+                            product.getCreatedAt(),
+                            ((PhysicalProduct) product).getWeight()
+                    );
+                }
             }
-            else if(product instanceof DigitalProduct)
+            // if being digital product
+            ps.setNull(7, Types.DECIMAL);
+            // Thực thi câu lệnh INSERT xuống Postgre
+            try(ResultSet rs = ps.executeQuery())
             {
-                ps.setNull(7, Types.DECIMAL);
+                if(!rs.next()){
+                    throw new SQLException("Saving and return product failed");
+                }
+                return new DigitalProduct(
+                        rs.getLong("id"),
+                        product.getName(),
+                        product.getQuantity(),
+                        product.getBasePrice(),
+                        product.getStatus(),
+                        product.getProductType(),
+                        product.getCreatedAt()
+                );
             }
-//          // Thực thi câu lệnh INSERT xuống Postgre
-            ps.executeUpdate();
         }
         catch (SQLException e)
         {

@@ -40,9 +40,10 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         ProductType type = ProductType.PHYSICAL;
         ProductStatus status = ProductStatus.INACTIVE;
         // create new
-        Product newProduct = new PhysicalProduct(name,stockQuantity,basePrice,status,type,weight);
         // save in db
-        productRepository.save(newProduct);
+        Product newProduct = productRepository.save(
+                new PhysicalProduct(name,stockQuantity,basePrice,status,type,weight)
+        );
         return newProduct;
     }
 
@@ -64,8 +65,9 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         if(product.isPresent()){
             throw new IllegalStateException("Product Name has already been used");
         }
-        Product newProduct = new DigitalProduct(name,stockQuantity,basePrice,ProductStatus.INACTIVE,ProductType.DIGITAL);
-        productRepository.save(newProduct);
+        Product newProduct = productRepository.save(
+                new DigitalProduct(name,stockQuantity,basePrice,ProductStatus.INACTIVE,ProductType.DIGITAL)
+        );
         return newProduct;
     }
 //    find product by id

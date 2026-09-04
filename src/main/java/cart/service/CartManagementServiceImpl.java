@@ -20,8 +20,7 @@ public class CartManagementServiceImpl implements CartManagementService {
     @Override
     public Cart createCart(Long userId) {
         Objects.requireNonNull(userId, "userId cannot be null");
-        Cart cart = new Cart(userId);
-        cartRepository.save(cart);
+        Cart cart = cartRepository.save(new Cart(userId));
         return cart;
     }
 //    get carts by userID

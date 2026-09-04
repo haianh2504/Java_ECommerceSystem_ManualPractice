@@ -86,18 +86,34 @@ public class JdbcCartRepository implements CartRepository {
     }
 //    save cart
     @Override
-    public void save(Cart cart) {
+    public Cart save(Cart cart) {
         String sql = """
                 INSERT INTO carts(
                 user_id,
-                created_at
-                ) VALUES (?, ?);
+                created_at,
+                status
+                ) VALUES (?, ?, ?)
+                RETURNING id
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
             ps.setLong(1, cart.getUserId());
             ps.setTimestamp(2, java.sql.Timestamp.from(cart.getCreatedAt()));
-            ps.executeUpdate();
+            ps.setString(3,cart.getCartStatus().name());
+            try(ResultSet rs = ps.executeQuery())
+            {
+                if(!rs.next()){
+                    throw new SQLException("Obtaining cart failed");
+                }
+                return new Cart(
+                        rs.getLong("id"),
+                        cart.getUserId(),
+                        cart.getCreatedAt(),
+                        cart.getCartStatus()
+                );
+            }catch (SQLException e){
+                throw new RuntimeException("Error while returning cart: " + e.getMessage(), e);
+            }
         }catch (SQLException e)
         {
             throw new RuntimeException("Error while saving cart to database: " + e.getMessage(), e);
@@ -125,7 +141,7 @@ public class JdbcCartRepository implements CartRepository {
                 UPDATE carts
                 SET
                 status = ?
-                WHERE cart_id = ?;
+                WHERE id = ?;
         """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
