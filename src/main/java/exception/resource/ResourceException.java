@@ -1,6 +1,6 @@
 package exception.resource;
 
-public class ResourceException extends RuntimeException {
+public abstract class ResourceException extends RuntimeException {
     public ResourceException(String message) {
         super(message);
     }
