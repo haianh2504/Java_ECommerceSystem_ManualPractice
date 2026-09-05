@@ -1,5 +1,6 @@
 package order_item.service;
 
+import exception.business.detailed_exceptions.OrderItemAlreadyExistsException;
 import exception.resource.detailed_exceptions.OrderItemNotFoundException;
 import exception.resource.detailed_exceptions.OrderNotFoundException;
 import order_item.entities.OrderItem;
@@ -32,7 +33,7 @@ public class OrderItemManagementServiceImpl implements OrderItemManagementServic
         // check for existence
         Optional<OrderItem> orderItem = orderItemRepo.findByOrderIdAndProductId(orderId,productId);
         if(orderItem.isPresent()){
-            throw new IllegalArgumentException("orderItem is already exist");
+            throw new OrderItemAlreadyExistsException(orderId,productId);
         }
         OrderItem orderItem1 = new OrderItem(orderId, productId, quantity, unit_price);
         orderItemRepo.save(orderItem1);

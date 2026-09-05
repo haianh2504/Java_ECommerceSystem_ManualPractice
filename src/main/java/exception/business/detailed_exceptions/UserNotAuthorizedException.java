@@ -1,10 +1,12 @@
 package exception.business.detailed_exceptions;
 
-public final class UserNotAuthorizedException extends RuntimeException {
+import exception.business.BusinessException;
+
+public final class UserNotAuthorizedException extends BusinessException {
     public UserNotAuthorizedException() {
-        super("Authentication is required to access this resource");
+        super("User is not authorized to perform this operation");
     }
     public UserNotAuthorizedException(Throwable cause) {
-        super("Authentication is required to access this resource", cause);
+        super("User is not authorized to perform this operation", cause);
     }
 }

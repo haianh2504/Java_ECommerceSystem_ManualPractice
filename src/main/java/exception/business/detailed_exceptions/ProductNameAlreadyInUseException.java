@@ -2,11 +2,11 @@ package exception.business.detailed_exceptions;
 
 import exception.business.BusinessException;
 
-public final class ProductNameAlreadyBeenInUseException extends BusinessException {
-    public ProductNameAlreadyBeenInUseException() {
+public final class ProductNameAlreadyInUseException extends BusinessException {
+    public ProductNameAlreadyInUseException() {
         super("This product name has already been used");
     }
-    public ProductNameAlreadyBeenInUseException(Throwable cause) {
+    public ProductNameAlreadyInUseException(Throwable cause) {
         super("This product name has already been used", cause);
     }
 }

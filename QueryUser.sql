@@ -31,7 +31,7 @@ ALTER TABLE users
 ADD CONSTRAINT email UNIQUE (email);
 
 ALTER TABLE products
-ADD CONSTRAINT product_name UNIQUE (product_name);
+ADD CONSTRAINT product_name UNIQUE (name);
 
 CREATE TYPE order_status_enum AS ENUM('PENDING_PAYMENT','SUCCESSFUL', 'CANCELLED');
 
@@ -83,12 +83,12 @@ ALTER TABLE orders
 ADD CONSTRAINT fk_orders_users
 FOREIGN KEY (user_id)
 REFERENCES users(id)
-ON DELETE CASCADE -- KHI xoá user đó thì mọi đơn hàng liên quan tới sẽ ra đi
+ON DELETE CASCADE; -- KHI xoá user đó thì mọi đơn hàng liên quan tới sẽ ra đi
 
 ALTER TABLE orders
 ADD CONSTRAINT fk_orders_carts
 FOREIGN KEY (cart_id)
-REFERENCES carts(id)
+REFERENCES carts(id);
 
 CREATE TYPE cart_status_enum AS ENUM('ACTIVE','CHECKED_OUT');
 ALTER TABLE carts
@@ -97,4 +97,4 @@ ALTER TABLE carts
 ALTER COLUMN status SET NOT NULL;
 
 ALTER TABLE products DROP CONSTRAINT product_name;
-ALTER TABLE
+ALTER TABLE users ADD CONSTRAINT phone_number UNIQUE(phone_number);

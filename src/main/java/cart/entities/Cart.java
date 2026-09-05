@@ -1,6 +1,7 @@
 package cart.entities;
 
 import cart_item.entities.CartItem;
+import exception.business.detailed_exceptions.CartAlreadyCheckedOutException;
 
 import java.time.Instant;
 import java.util.*;
@@ -43,7 +44,9 @@ public class Cart{
     public final void setCheckedOutStatus()
     {
         Objects.requireNonNull(cartStatus,"cartStatus cannot be null");
-        if(this.cartStatus == CartStatus.CHECKED_OUT) return;
+        if(this.cartStatus == CartStatus.CHECKED_OUT){
+            throw new CartAlreadyCheckedOutException();
+        }
         this.cartStatus = CartStatus.CHECKED_OUT;
     }
 }

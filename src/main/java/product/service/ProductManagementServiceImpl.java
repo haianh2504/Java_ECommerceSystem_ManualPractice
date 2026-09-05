@@ -1,5 +1,6 @@
 package product.service;
 
+import exception.business.detailed_exceptions.ProductNameAlreadyInUseException;
 import exception.resource.detailed_exceptions.ProductNotFoundException;
 import product.entities.*;
 import product.repository.ProductRepository;
@@ -34,7 +35,7 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         Optional<Product> product = productRepository.findByName(name);
         if(product.isPresent())
         {
-            throw new IllegalArgumentException("Product name has already been used");
+            throw new ProductNameAlreadyInUseException();
         }
         // new product feature
         ProductType type = ProductType.PHYSICAL;
@@ -63,7 +64,7 @@ public class ProductManagementServiceImpl implements ProductManagementService{
         // check if already exist
         Optional<Product> product = productRepository.findByName(name);
         if(product.isPresent()){
-            throw new IllegalStateException("Product Name has already been used");
+            throw new ProductNameAlreadyInUseException();
         }
         Product newProduct = productRepository.save(
                 new DigitalProduct(name,stockQuantity,basePrice,ProductStatus.INACTIVE,ProductType.DIGITAL)

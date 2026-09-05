@@ -1,5 +1,9 @@
 package user.service;
 
+import exception.business.detailed_exceptions.AccountBannedException;
+import exception.business.detailed_exceptions.EmailAlreadyInUseException;
+import exception.business.detailed_exceptions.PhoneAlreadyInUseException;
+import exception.business.detailed_exceptions.UserNotAuthorizedException;
 import exception.resource.detailed_exceptions.UserNotFoundException;
 import user.repository.UserRepository;
 import user.entities.*;
@@ -36,7 +40,7 @@ public final class UserManageServiceImpl implements UserManagementService{
         // new User
         if(userRepository.findByEmail(email).isPresent())
         {
-            throw new IllegalStateException("This email has already been used");
+            throw new EmailAlreadyInUseException();
         }
         // phoneNumber is optional
         User user = userRepository.save(new User(passwordHash,name,phoneNumber,email,userRole));
@@ -75,6 +79,10 @@ public final class UserManageServiceImpl implements UserManagementService{
         {
             throw new NullPointerException("New phoneNumber cannot be null");
         }
+        if(userRepository.findByPhoneNumber(newPhoneNumber).isPresent())
+        {
+            throw new PhoneAlreadyInUseException();
+        }
         user.changePhoneNumber(newPhoneNumber);
         userRepository.update(user);
     }
@@ -88,6 +96,10 @@ public final class UserManageServiceImpl implements UserManagementService{
         {
             throw new NullPointerException("New email cannot be null");
         }
+        if(userRepository.findByEmail(newEmail).isPresent())
+        {
+            throw new EmailAlreadyInUseException();
+        }
         user.changeEmail(newEmail);
         userRepository.update(user);
     }
@@ -100,14 +112,14 @@ public final class UserManageServiceImpl implements UserManagementService{
         );
         if(admin.getRole() != UserRole.ADMIN)
         {
-            throw new IllegalStateException("Do not have permission to promote user");
+            throw new UserNotAuthorizedException();
         }
         User targetUser = userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException(userId)
         );
         if(targetUser.getStatus() == UserStatus.BANNED)
         {
-            throw new IllegalStateException("Banned user cannot become admin");
+            throw new AccountBannedException();
         }
         targetUser.changeRole(UserRole.ADMIN);
         userRepository.update(targetUser);

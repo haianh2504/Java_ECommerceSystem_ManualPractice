@@ -115,8 +115,6 @@ public class JdbcCartRepository implements CartRepository {
                         cart.getCreatedAt(),
                         cart.getCartStatus()
                 );
-            }catch (SQLException e){
-                throw new RuntimeException("Error while returning cart: " + e.getMessage(), e);
             }
         }catch (SQLException e)
         {

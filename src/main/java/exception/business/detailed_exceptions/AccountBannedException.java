@@ -1,6 +1,8 @@
 package exception.business.detailed_exceptions;
 
-public class AccountBannedException extends RuntimeException {
+import exception.business.BusinessException;
+
+public class AccountBannedException extends BusinessException {
     public AccountBannedException() {
         super("This account has already been banned.");
     }

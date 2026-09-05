@@ -233,5 +233,36 @@ public final class JdbcUserRepository implements UserRepository{
             throw new RuntimeException("Error while searching user: " + e.getMessage(),e);
         }
     }
-
+//    Find by phone number
+    @Override
+    public Optional<User> findByPhoneNumber(PhoneNumber phoneNumber){
+        String sql = """
+                SELECT * FROM users WHERE phone_number = ?;
+                """;
+        try(PreparedStatement ps = connection.prepareStatement(sql))
+        {
+            ps.setString(1,phoneNumber.toString());
+            try(ResultSet rs = ps.executeQuery())
+            {
+                if(!rs.next()) return Optional.empty();
+                String sqlPhone = rs.getString("phone_number");
+                PhoneNumber phone_number = (sqlPhone == null) ? null : new PhoneNumber(sqlPhone);
+                return Optional.of(
+                        new User(
+                                rs.getLong("id"),
+                                new PasswordHash(rs.getString("password_hash")),
+                                new PersonName(rs.getString("name")),
+                                phone_number,
+                                new Email(rs.getString("email")),
+                                UserRole.valueOf(rs.getString("role")),
+                                UserStatus.valueOf(rs.getString("status")),
+                                rs.getTimestamp("created_at").toInstant()
+                        )
+                );
+            }
+        }catch(SQLException e)
+        {
+            throw new RuntimeException("Error while searching user by phone number: " + e.getMessage(),e);
+        }
+    }
 }
