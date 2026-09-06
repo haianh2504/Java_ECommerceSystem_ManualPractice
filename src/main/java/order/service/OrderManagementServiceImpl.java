@@ -32,16 +32,16 @@ public class OrderManagementServiceImpl implements OrderManagementService {
         Objects.requireNonNull(shippingFee, "shippingFee must not be null");
         Objects.requireNonNull(discountAmount, "discountAmount must not be null");
         Objects.requireNonNull(totalPrice, "totalPrice must not be null");
-        if(subTotal.compareTo(shippingFee) < 0) {
+        if(subTotal.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("subtotal cannot be negative");
         }
-        if(discountAmount.compareTo(shippingFee) < 0) {
+        if(discountAmount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("discountAmount cannot be negative");
         }
-        if (shippingFee.compareTo(subTotal) < 0) {
+        if (shippingFee.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("ShippingFee cannot be negative");
         }
-        if (totalPrice.compareTo(shippingFee) < 0) {
+        if (totalPrice.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("totalPrice cannot be negative");
         }
         Order order = new Order(userId,cartId, subTotal, shippingFee, discountAmount, totalPrice);

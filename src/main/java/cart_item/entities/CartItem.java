@@ -36,6 +36,7 @@ public class CartItem {
         if(number <= 0){
             throw new IllegalArgumentException("Invalid number");
         }
+        this.number = number;
     }
 //    getters
     public final Long getCartItemId(){return this.cartItemId;}
