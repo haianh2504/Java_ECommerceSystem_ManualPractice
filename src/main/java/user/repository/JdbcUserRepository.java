@@ -35,7 +35,7 @@ public final class JdbcUserRepository implements UserRepository{
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
-            ps.setString(1, user.getName().toString());
+            ps.setString(1, user.getName().name());
             if(user.getPhoneNumber() != null){
                 ps.setString(2,user.getPhoneNumber().toString());
             }
@@ -45,7 +45,7 @@ public final class JdbcUserRepository implements UserRepository{
             ps.setString(3,user.getEmail().toString());
             ps.setString(4,user.getRole().name());
             ps.setString(5,user.getStatus().name());
-            ps.setString(6, user.getPasswordHash().toString());
+            ps.setString(6, user.getPasswordHash().passwordHash());
             // from: Instant | valueOf: LocalDateTime
             ps.setTimestamp(7,java.sql.Timestamp.from(user.getTimeCreated()));
             // Thực thi câu lệnh INSERT xuống DB
@@ -90,7 +90,7 @@ public final class JdbcUserRepository implements UserRepository{
                 """;
         try(PreparedStatement ps = connection.prepareStatement(sql))
         {
-            ps.setString(1, user.getName().toString());
+            ps.setString(1, user.getName().name());
             if(user.getPhoneNumber() == null)
             {
                 ps.setNull(2, Types.VARCHAR);
@@ -99,7 +99,7 @@ public final class JdbcUserRepository implements UserRepository{
             ps.setString(3,user.getEmail().toString());
             ps.setString(4,user.getRole().name());
             ps.setString(5, user.getStatus().name());
-            ps.setString(6,user.getPasswordHash().toString());
+            ps.setString(6, user.getPasswordHash().passwordHash());
             ps.setLong(7, user.getId());
             ps.executeUpdate();
         } catch (SQLException e){

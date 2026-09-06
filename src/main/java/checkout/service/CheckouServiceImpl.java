@@ -152,7 +152,7 @@ public class CheckouServiceImpl implements CheckoutService {
                     // decrease stock quantity of the quantity
                     for(CheckoutItem checkoutItem : checkoutItemList){
                         productManagementService.decreaseStockQuantity(  // -> could throw exception
-                                checkoutItem.product().getId(), // product Id
+                                checkoutItem.product().getId(),
                                 checkoutItem.cartItem().getNumber() // decreased number
                         );
                     }

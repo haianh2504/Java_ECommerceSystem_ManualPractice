@@ -1,4 +1,5 @@
 package user.entities;
+import exception.business.detailed_exceptions.UserAlreadyActive;
 import lombok.Builder;
 
 import java.time.Instant;
@@ -101,17 +102,16 @@ public final class User {
 //    activate account
     public void activate(PhoneNumber phoneNumber)
     {
-        // Nếu đã có phone number
-        if(this.phoneNumber != null){
-            return;
+        // if user has already been activated
+        if(this.status == UserStatus.ACTIVE){
+            throw new UserAlreadyActive();
         }
-        try{
-            addPhoneNumber(phoneNumber);
-            this.status = UserStatus.ACTIVE;
-        }catch (NullPointerException e)
-        {
-            throw new RuntimeException("Error while activating user: " + e.getMessage(),e);
+        // if input null
+        if(phoneNumber == null){
+            throw new NullPointerException("PhoneNumber cannot be null");
         }
+        addPhoneNumber(phoneNumber);
+        this.status = UserStatus.ACTIVE;
     }
 //    change role
     public void changeRole(UserRole newRole)
