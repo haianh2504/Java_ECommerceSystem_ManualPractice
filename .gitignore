@@ -37,6 +37,7 @@ target/
 *.iml
 
 # Maven build output
+.maven-repository/
 target/
 
 # Local Maven repository
@@ -48,3 +49,4 @@ target/
 
 # macOS
 .DS_Store
+
