@@ -35,3 +35,16 @@ bin/
 target/
 .idea/
 *.iml
+
+# Maven build output
+target/
+
+# Local Maven repository
+.maven-repo/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# macOS
+.DS_Store
