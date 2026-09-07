@@ -121,7 +121,7 @@ public final class UserManageServiceImpl implements UserManagementService{
         {
             throw new AccountBannedException();
         }
-        targetUser.changeRole(UserRole.ADMIN);
+        targetUser.authorize();
         userRepository.update(targetUser);
     }
 }

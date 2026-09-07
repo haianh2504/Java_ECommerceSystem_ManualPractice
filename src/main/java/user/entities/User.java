@@ -1,10 +1,11 @@
 package user.entities;
+import exception.business.detailed_exceptions.AccountBannedException;
 import exception.business.detailed_exceptions.UserAlreadyActive;
+import exception.business.detailed_exceptions.UserAlreadyBanned;
 import lombok.Builder;
 
 import java.time.Instant;
 import java.util.Objects;
-@Builder
 public final class User {
     private Long id;
     private PasswordHash passwordHash;
@@ -26,6 +27,7 @@ public final class User {
         Objects.requireNonNull(userRole, "User role cannot be null");
     }
 //    constructor - full info
+    @Builder
     public User(PasswordHash passwordHash,PersonName name,PhoneNumber phoneNumber, Email email, UserRole userRole)
     {
         validateBasicInfo(passwordHash,name,email,userRole);
@@ -104,7 +106,7 @@ public final class User {
     {
         // if user has already been activated
         if(this.status == UserStatus.ACTIVE){
-            throw new UserAlreadyActive();
+            throw new UserAlreadyActive(this);
         }
         // if input null
         if(phoneNumber == null){
@@ -113,18 +115,32 @@ public final class User {
         addPhoneNumber(phoneNumber);
         this.status = UserStatus.ACTIVE;
     }
+//    banned account
+    public void banned()
+    {
+        if(this.status == UserStatus.BANNED)
+        {
+            throw new UserAlreadyBanned(this);
+        }
+        this.status = UserStatus.BANNED;
+    }
 //    change role
-    public void changeRole(UserRole newRole)
+    private void changeRole(UserRole newRole)
     {
         if(newRole == null)
         {
             throw new IllegalArgumentException("Role cannot be null");
         }
+        this.userRole = newRole;
+    }
+    public void authorize()
+    {
+        Objects.requireNonNull(userRole, "User role cannot be null");
         if(this.status == UserStatus.BANNED)
         {
-            throw new IllegalStateException("Banned user cannot change role");
+            throw new AccountBannedException();
         }
-        this.userRole = newRole;
+        this.changeRole(UserRole.ADMIN);
     }
 //    change name
     public void changeName(PersonName newName)

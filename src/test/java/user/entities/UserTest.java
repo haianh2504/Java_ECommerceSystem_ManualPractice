@@ -1,199 +1,328 @@
 package user.entities;
 
-import exception.business.BusinessException;
+import exception.business.detailed_exceptions.AccountBannedException;
 import exception.business.detailed_exceptions.UserAlreadyActive;
-import org.junit.jupiter.api.Assertions;
+import exception.business.detailed_exceptions.UserAlreadyBanned;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.time.Instant;
 
-public class UserTest {
-    // CREATE USER WITH VALID PHONE NUMBER => STATUS IS ACTIVE & CREATEDAT IS SET
-    @Test
-    @DisplayName("Should create active user when valid phone number is provided")
-    public void createActiveUser_validPhoneNumber()
-    {
-        // set up
-        PasswordHash passwordHash = new PasswordHash("$2342haHkacnd");
-        PersonName personName = new PersonName("Phan Hai Anh");
-        Email email = new Email("Haianh2504077@gmail.com");
-        PhoneNumber phoneNumber = new PhoneNumber("0912345678");
-        UserRole userRole = UserRole.NORMAL_USER;
+import static org.junit.jupiter.api.Assertions.*;
 
-        // create user
-        User user = new User(passwordHash, personName, phoneNumber, email, userRole);
+class UserTest {
 
-        // assert
-        Assertions.assertNull(user.getId()); // initially null before save in db
-        Assertions.assertEquals(passwordHash, user.getPasswordHash());
-        Assertions.assertEquals(personName, user.getName());
-        Assertions.assertEquals(email, user.getEmail());
-        Assertions.assertEquals(phoneNumber, user.getPhoneNumber());
-        Assertions.assertSame(UserRole.NORMAL_USER, user.getRole());
-        Assertions.assertEquals(UserStatus.ACTIVE, user.getStatus());
-        Assertions.assertNotNull(user.getTimeCreated());
+    private static final PasswordHash PASSWORD_HASH = new PasswordHash("$2342haHkacnd");
+    private static final PersonName NAME = new PersonName("Phan Hai Anh");
+    private static final Email EMAIL = new Email("haianh2504077@gmail.com");
+    private static final PhoneNumber PHONE_NUMBER = new PhoneNumber("0912345678");
+    private static final UserRole ROLE = UserRole.NORMAL_USER;
+
+    private User createUser(PhoneNumber phoneNumber) {
+        return User.builder()
+                .passwordHash(PASSWORD_HASH)
+                .name(NAME)
+                .phoneNumber(phoneNumber)
+                .email(EMAIL)
+                .userRole(ROLE)
+                .build();
     }
 
-    // CREATE USER WITHOUT PHONE NUMBER - STATUS: PENDING
-    @Test
-    @DisplayName("Should create pending user when not adding phone number initially")
-    public void createPendingUser_NotAddingPhoneNumber()
-    {
-        // set up
-        PasswordHash passwordHash = new PasswordHash("$2342haHkacnd");
-        PersonName personName = new PersonName("Phan Hai Anh");
-        Email email = new Email("Haianh2504077@gmail.com");
-        UserRole userRole = UserRole.NORMAL_USER;
-
-        // set up and create user
-        User user = new User(passwordHash, personName, null, email, userRole);
-
-        // assert
-        Assertions.assertNull(user.getId());
-        Assertions.assertEquals(passwordHash, user.getPasswordHash());
-        Assertions.assertEquals(personName, user.getName());
-        Assertions.assertEquals(email, user.getEmail());
-        Assertions.assertNull(user.getPhoneNumber());
-        Assertions.assertSame(UserRole.NORMAL_USER, user.getRole());
-        Assertions.assertSame(UserStatus.PENDING, user.getStatus());
-        Assertions.assertNotNull(user.getTimeCreated());
+    private User createActiveUser() {
+        return createUser(PHONE_NUMBER);
     }
 
-    // CREATE USER WITH MISSING REQUIRED DATA
-    @Test // PASSWORD MISSING
-    @DisplayName("Should reject user when password hash is missing")
-    public void createUser_missingPasswordHash()
-    {
-        PersonName personName = new PersonName("Phan Hai Anh");
-        Email email = new Email("Haianh2504077@gmail.com");
+    private User createPendingUser() {
+        return createUser(null);
+    }
 
-        // check if the system throw exceptions
-        // assertThrows required 2 arguments
-        // 1. the type of exception expected to happen
-        // 2. the content code causing the exception
+    @Test
+    @DisplayName("Should create an active user when a valid phone number is provided")
+    void createUser_validPhoneNumber_createsActiveUser() {
+        Instant beforeCreation = Instant.now();
+
+        User user = createActiveUser();
+
+        assertAll(
+                () -> assertNull(user.getId()),
+                () -> assertEquals(PASSWORD_HASH, user.getPasswordHash()),
+                () -> assertEquals(NAME, user.getName()),
+                () -> assertEquals(PHONE_NUMBER, user.getPhoneNumber()),
+                () -> assertEquals(EMAIL, user.getEmail()),
+                () -> assertSame(ROLE, user.getRole()),
+                () -> assertSame(UserStatus.ACTIVE, user.getStatus()),
+                () -> assertNotNull(user.getTimeCreated()),
+                () -> assertFalse(user.getTimeCreated().isBefore(beforeCreation))
+        );
+    }
+
+    @Test
+    @DisplayName("Should create a pending user when no phone number is provided")
+    void createUser_withoutPhoneNumber_createsPendingUser() {
+        User user = createPendingUser();
+
+        assertAll(
+                () -> assertNull(user.getId()),
+                () -> assertEquals(PASSWORD_HASH, user.getPasswordHash()),
+                () -> assertEquals(NAME, user.getName()),
+                () -> assertNull(user.getPhoneNumber()),
+                () -> assertEquals(EMAIL, user.getEmail()),
+                () -> assertSame(ROLE, user.getRole()),
+                () -> assertSame(UserStatus.PENDING, user.getStatus()),
+                () -> assertNotNull(user.getTimeCreated())
+        );
+    }
+
+    @Test
+    @DisplayName("Should reject a user when the password hash is missing")
+    void createUser_missingPasswordHash_throwsNullPointerException() {
         NullPointerException exception = assertThrows(
-                // .class -> metadata of a class
                 NullPointerException.class,
                 () -> User.builder()
-                        .name(personName)
-                        .email(email)
-                        .userRole(UserRole.NORMAL_USER)
+                        .passwordHash(null)
+                        .name(NAME)
+                        .email(EMAIL)
+                        .userRole(ROLE)
                         .build()
         );
-        // The assertThrows return that exception & "exception" catch it content
+
         assertEquals("User passwordHash cannot be null", exception.getMessage());
     }
 
-    @Test // NAME MISSING
-    @DisplayName("Should reject user when name is missing")
-    public void createUser_missingName()
-    {
-        PasswordHash passwordHash = new PasswordHash("$2342haHkacnd");
-        Email email = new Email("Haianh2504077@gmail.com");
-
+    @Test
+    @DisplayName("Should reject a user when the name is missing")
+    void createUser_missingName_throwsNullPointerException() {
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
                 () -> User.builder()
-                        .passwordHash(passwordHash)
-                        .email(email)
-                        .userRole(UserRole.NORMAL_USER)
+                        .passwordHash(PASSWORD_HASH)
+                        .name(null)
+                        .email(EMAIL)
+                        .userRole(ROLE)
                         .build()
         );
 
         assertEquals("User name cannot be null", exception.getMessage());
     }
 
-    @Test // EMAIL MISSING
-    @DisplayName("Should reject user when email is missing")
-    public void createUser_missingEmail()
-    {
-        PasswordHash passwordHash = new PasswordHash("$2342haHkacnd");
-        PersonName personName = new PersonName("Phan Hai Anh");
-
+    @Test
+    @DisplayName("Should reject a user when the email is missing")
+    void createUser_missingEmail_throwsNullPointerException() {
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
                 () -> User.builder()
-                        .passwordHash(passwordHash)
-                        .name(personName)
-                        .userRole(UserRole.NORMAL_USER)
+                        .passwordHash(PASSWORD_HASH)
+                        .name(NAME)
+                        .email(null)
+                        .userRole(ROLE)
                         .build()
         );
 
         assertEquals("User email cannot be null", exception.getMessage());
     }
 
-    @Test // ROLE MISSING
-    @DisplayName("Should reject user when role is missing")
-    public void createUser_missingRole()
-    {
-        PasswordHash passwordHash = new PasswordHash("$2342haHkacnd");
-        PersonName personName = new PersonName("Phan Hai Anh");
-        Email email = new Email("Haianh2504077@gmail.com");
-
+    @Test
+    @DisplayName("Should reject a user when the role is missing")
+    void createUser_missingRole_throwsNullPointerException() {
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
                 () -> User.builder()
-                        .passwordHash(passwordHash)
-                        .name(personName)
-                        .email(email)
+                        .passwordHash(PASSWORD_HASH)
+                        .name(NAME)
+                        .email(EMAIL)
+                        .userRole(null)
                         .build()
         );
 
         assertEquals("User role cannot be null", exception.getMessage());
     }
 
-    // ACTIVATE AN ALREADY ACTIVE USER
     @Test
-    @DisplayName("Activate an already active user")
-    public void activateUser_alreadyActive(){
-        // set up
-        PasswordHash passwordHash = new PasswordHash("$2342haHkacnd");
-        PersonName personName = new PersonName("Phan Hai Anh");
-        Email email = new Email("Haianh2504077@gmail.com");
-        PhoneNumber phoneNumber = new PhoneNumber("0912345678");
-        UserRole userRole = UserRole.NORMAL_USER;
+    @DisplayName("Should activate a pending user with a valid phone number")
+    void activate_pendingUser_setsPhoneNumberAndActiveStatus() {
+        User user = createPendingUser();
 
-        // set up user
-        User user = User.builder()
-                .passwordHash(passwordHash)
-                .email(email)
-                .userRole(userRole)
-                .phoneNumber(phoneNumber)
-                .build();
-        // catch exception - assert exception
-        UserAlreadyActive exception = assertThrows(
-                UserAlreadyActive.class,
-                () -> user.activate(phoneNumber)
+        user.activate(PHONE_NUMBER);
+
+        assertAll(
+                () -> assertEquals(PHONE_NUMBER, user.getPhoneNumber()),
+                () -> assertSame(UserStatus.ACTIVE, user.getStatus())
         );
-        // assert message
-        Assertions.assertEquals("User is already active",exception.getMessage());
     }
 
-    // ACTIVATE A PENDING USER WITH NULL PHONE -> THROW EXCEPTION
     @Test
-    @DisplayName("Activate a pending user with null phone number, throw exception")
-    public void activateUser_nullPhoneNumber_throwException(){
-        // set up
-        PasswordHash passwordHash = new PasswordHash("$2342haHkacnd");
-        PersonName personName = new PersonName("Phan Hai Anh");
-        Email email = new Email("Haianh2504077@gmail.com");
-        UserRole userRole = UserRole.NORMAL_USER;
-        // set up user
-        User user = User.builder()
-                .passwordHash(passwordHash)
-                .email(email)
-                .userRole(userRole)
-                .build();
-        // catch and assert null exception
+    @DisplayName("Should reject activation when the user is already active")
+    void activate_activeUser_throwsUserAlreadyActive() {
+        User user = createActiveUser();
+
+        UserAlreadyActive exception = assertThrows(
+                UserAlreadyActive.class,
+                () -> user.activate(new PhoneNumber("0987654321"))
+        );
+
+        assertAll(
+                () -> assertEquals("User [Phan Hai Anh] is already active", exception.getMessage()),
+                () -> assertEquals(PHONE_NUMBER, user.getPhoneNumber()),
+                () -> assertSame(UserStatus.ACTIVE, user.getStatus())
+        );
+    }
+
+    @Test
+    @DisplayName("Should reject activation when the phone number is null")
+    void activate_pendingUserWithNullPhone_throwsNullPointerException() {
+        User user = createPendingUser();
+
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
-                () -> {
-                    user.activate(null);
-                }
+                () -> user.activate(null)
         );
-        // assert
-        Assertions.assertEquals("PhoneNumber cannot be null", exception.getMessage());
+
+        assertAll(
+                () -> assertEquals("PhoneNumber cannot be null", exception.getMessage()),
+                () -> assertNull(user.getPhoneNumber()),
+                () -> assertSame(UserStatus.PENDING, user.getStatus())
+        );
+    }
+
+    @Test
+    @DisplayName("Should ban a user")
+    void banned_activeUser_setsBannedStatus() {
+        User user = createActiveUser();
+
+        user.banned();
+
+        assertSame(UserStatus.BANNED, user.getStatus());
+    }
+
+    @Test
+    @DisplayName("Should reject banning an already banned user")
+    void banned_alreadyBannedUser_throwsUserAlreadyBanned() {
+        User user = createActiveUser();
+        user.banned();
+
+        UserAlreadyBanned exception = assertThrows(UserAlreadyBanned.class, user::banned);
+
+        assertAll(
+                () -> assertEquals(
+                        "Cannot perform action on user [Phan Hai Anh]: account is already banned",
+                        exception.getMessage()
+                ),
+                () -> assertSame(UserStatus.BANNED, user.getStatus())
+        );
+    }
+
+    @Test
+    @DisplayName("Should reject authorization for a banned user")
+    void authorize_bannedUser_throwsAccountBannedException() {
+        User user = createActiveUser();
+        user.banned();
+
+        AccountBannedException exception = assertThrows(AccountBannedException.class, user::authorize);
+
+        assertAll(
+                () -> assertEquals("This account has already been banned.", exception.getMessage()),
+                () -> assertSame(UserRole.NORMAL_USER, user.getRole()),
+                () -> assertSame(UserStatus.BANNED, user.getStatus())
+        );
+    }
+
+    @Test
+    @DisplayName("Should authorize a non-banned user")
+    void authorize_nonBannedUser_changesRoleToAdmin() {
+        User activeUser = createActiveUser();
+        User pendingUser = createPendingUser();
+
+        activeUser.authorize();
+        pendingUser.authorize();
+
+        assertAll(
+                () -> assertSame(UserRole.ADMIN, activeUser.getRole()),
+                () -> assertSame(UserRole.ADMIN, pendingUser.getRole())
+        );
+    }
+
+    @Test
+    @DisplayName("Should change the user's name")
+    void changeName_validName_updatesName() {
+        User user = createActiveUser();
+        PersonName newName = new PersonName("Phan Hai Dang");
+
+        user.changeName(newName);
+
+        assertEquals(newName, user.getName());
+    }
+
+    @Test
+    @DisplayName("Should reject a null name")
+    void changeName_null_throwsNullPointerException() {
+        User user = createActiveUser();
+
+        NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> user.changeName(null)
+        );
+
+        assertAll(
+                () -> assertEquals("New username cannot be null", exception.getMessage()),
+                () -> assertEquals(NAME, user.getName())
+        );
+    }
+
+    @Test
+    @DisplayName("Should change the user's email")
+    void changeEmail_validEmail_updatesEmail() {
+        User user = createActiveUser();
+        Email newEmail = new Email("new.address@gmail.com");
+
+        user.changeEmail(newEmail);
+
+        assertEquals(newEmail, user.getEmail());
+    }
+
+    @Test
+    @DisplayName("Should reject a null email")
+    void changeEmail_null_throwsNullPointerException() {
+        User user = createActiveUser();
+
+        NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> user.changeEmail(null)
+        );
+
+        assertAll(
+                () -> assertEquals("New email cannot be null", exception.getMessage()),
+                () -> assertEquals(EMAIL, user.getEmail())
+        );
+    }
+
+    @Test
+    @DisplayName("Should change the user's phone number")
+    void changePhoneNumber_differentValidNumber_updatesPhoneNumber() {
+        User user = createActiveUser();
+        PhoneNumber newPhoneNumber = new PhoneNumber("0987654321");
+
+        user.changePhoneNumber(newPhoneNumber);
+
+        assertAll(
+                () -> assertEquals(newPhoneNumber, user.getPhoneNumber()),
+                () -> assertNotEquals(PHONE_NUMBER, user.getPhoneNumber()),
+                () -> assertSame(UserStatus.ACTIVE, user.getStatus())
+        );
+    }
+
+    @Test
+    @DisplayName("Should reject a null phone number")
+    void changePhoneNumber_null_throwsNullPointerException() {
+        User user = createActiveUser();
+
+        NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> user.changePhoneNumber(null)
+        );
+
+        assertAll(
+                () -> assertEquals("New phoneNumber cannot be null", exception.getMessage()),
+                () -> assertEquals(PHONE_NUMBER, user.getPhoneNumber())
+        );
     }
 }

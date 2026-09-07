@@ -1,14 +1,19 @@
 package exception.business.detailed_exceptions;
 
 import exception.business.BusinessException;
+import user.entities.User;
 
-public class UserAlreadyActive extends BusinessException {
-    public UserAlreadyActive()
+public final class UserAlreadyActive extends BusinessException {
+    public UserAlreadyActive(User user)
     {
-      super("User is already active");
+      super(String.format(
+              "User [%s] is already active", user.getName().name()
+      ));
     }
-    public UserAlreadyActive(Throwable cause)
+    public UserAlreadyActive(User user, Throwable cause)
     {
-      super("User is already active", cause);
+        super(String.format(
+                "User [%s] is already active", user.getName().name()
+        ), cause);
     }
 }
