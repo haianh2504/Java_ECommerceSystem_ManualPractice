@@ -24,6 +24,9 @@ ALTER COLUMN created_at TYPE timestamptz,
     ALTER COLUMN created_at SET NOT NULL,
     ALTER COLUMN created_at SET DEFAULT CURRENT_TIMESTAMP;
 
+ALTER TABLE users
+ALTER COLUMN password_hash SET NOT NULL;
+
 ALTER TABLE products
 ADD COLUMN weight NUMERIC(10,3);
 
