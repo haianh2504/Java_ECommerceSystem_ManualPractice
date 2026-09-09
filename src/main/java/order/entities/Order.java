@@ -61,10 +61,10 @@ public class Order {
         if(subTotal.compareTo(BigDecimal.ZERO) <= 0){
             throw new IllegalArgumentException("subTotal must be greater than zero");
         }
-        if(shippingFee.compareTo(BigDecimal.ZERO) < 0){
+        if(this.shippingFee.compareTo(BigDecimal.ZERO) < 0){
             throw new IllegalArgumentException("shippingFee must not be negative");
         }
-        if(discountAmount.compareTo(BigDecimal.ZERO) < 0){
+        if(this.discountAmount.compareTo(BigDecimal.ZERO) < 0){
             throw new IllegalArgumentException("discountAmount must not be negative");
         }
     }

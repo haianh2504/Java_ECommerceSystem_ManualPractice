@@ -31,7 +31,7 @@ public abstract class Product {
     protected Product(Long id, ProductName name, int stockQuantity, BigDecimal basePrice, ProductStatus status, ProductType productType, Instant createdAt)
     {
         this.id = Objects.requireNonNull(id,"productId cannot be null");
-        this.name = name;
+        this.name = Objects.requireNonNull(name, "Product name cannot be null");
         if(stockQuantity < 0){
             throw new IllegalArgumentException("Stock quantity cannot be negative");
         }
