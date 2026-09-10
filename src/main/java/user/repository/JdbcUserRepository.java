@@ -75,7 +75,7 @@ public final class JdbcUserRepository implements UserRepository{
     }
 //    update user by id
     @Override
-    public void update(User user)
+    public User update(User user)
     {
         String sql = """
                 UPDATE users
@@ -101,7 +101,12 @@ public final class JdbcUserRepository implements UserRepository{
             ps.setString(5, user.getStatus().name());
             ps.setString(6, user.getPasswordHash().passwordHash());
             ps.setLong(7, user.getId());
-            ps.executeUpdate();
+            int updatedRows = ps.executeUpdate();
+            if(updatedRows == 0)
+            {
+                throw new RuntimeException("Updating user failed, no user found with id " + user.getId());
+            }
+            return user;
         } catch (SQLException e){
             throw new RuntimeException("Error while updating user's information: " + e.getMessage(),e);
         }

@@ -1,13 +1,17 @@
-package cart;
+package cart.service;
 
 import cart.entities.Cart;
 import cart.repository.CartRepository;
 import cart_item.repository.CartItemRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
 
+@ExtendWith(MockitoExtension.class)
 public class CartManagementServiceImplTest {
     private CartRepository cartRepository;
     private CartItemRepository cartItemRepository;
