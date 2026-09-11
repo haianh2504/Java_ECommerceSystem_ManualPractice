@@ -1,6 +1,7 @@
 package exception.resource.detailed_exceptions;
 
 import exception.resource.ResourceException;
+import product.entities.ProductName;
 
 public class ProductNotFoundException extends ResourceException
 {
@@ -11,5 +12,17 @@ public class ProductNotFoundException extends ResourceException
         public ProductNotFoundException(Long id,Throwable cause)
         {
             super("Product with id " + id + " not found", cause);
+        }
+        public ProductNotFoundException(ProductName productName)
+        {
+            super(String.format(
+                    "Product with name [%s] not found", productName.toString()
+            ));
+        }
+        public ProductNotFoundException(ProductName productName, Throwable cause)
+        {
+            super(String.format(
+                    "Product with name [%s] not found", productName.toString()
+            ), cause);
         }
 }

@@ -81,6 +81,15 @@ public class ProductManagementServiceImpl implements ProductManagementService{
                 );
         return product;
     }
+//    find product by name
+    public Product  findProductByName(ProductName productName) {
+        Objects.requireNonNull(productName,"Product name cannot be null");
+        Product product = productRepository.findByName(productName)
+                .orElseThrow(
+                        () -> new ProductNotFoundException(productName)
+                );
+        return product;
+    }
 //    update product name - need auth
     @Override
     public void updateProductName(Long productId, ProductName newName) {

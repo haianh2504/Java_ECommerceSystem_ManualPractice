@@ -16,6 +16,9 @@ public interface ProductManagementService {
 //    find Product by id
     public Product findProductById(Long productId);
 
+//    find Product by name
+    public Product findProductByName(ProductName name);
+
 //    update product name - need authorize
     public void updateProductName(Long productId, ProductName newName);
 
