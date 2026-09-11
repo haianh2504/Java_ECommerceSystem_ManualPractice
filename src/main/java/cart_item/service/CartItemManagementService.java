@@ -16,14 +16,11 @@ public interface CartItemManagementService {
 //    delete cartItem in cart
     public void deleteCartItem(Long cartItemId);
 
-//    delete all cartItems in cart
-    public void clearCart(Long cartId);
-
 //    find CartItem by cart ID and product ID in cart
     public CartItem getCartItemByCartIdAndProductId(Long cartId,Long productId);
 
-//    update Item quantity
-    public void updateItemQuantity(Long cartItemId, int newQuantity);
+//    update Cart Item quantity
+    public void updateCartItemQuantity(Long cartItemId, int newQuantity);
 
 //    calculate total price for a cartItem
     public BigDecimal calculateTotalPrice(List<CartItem> cartItemList);

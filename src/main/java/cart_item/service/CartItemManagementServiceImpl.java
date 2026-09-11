@@ -64,13 +64,7 @@ public class CartItemManagementServiceImpl implements  CartItemManagementService
         }
         cartItemRepository.deleteByCartItemId(cartItemId);
     }
-//    delete all cartItems in cart
-    @Override
-    public void clearCart(Long cartId) {
-        Objects.requireNonNull(cartId, "cartId cannot be null");
-        cartItemRepository.deleteAllByCartId(cartId);
-    }
-//    find CartItem by cartId & productId in cart
+//    get CartItem by cartId & productId in cart
     @Override
     public CartItem getCartItemByCartIdAndProductId(Long cartId,Long productId) {
         Objects.requireNonNull(cartId, "cartId cannot be null");
@@ -81,7 +75,7 @@ public class CartItemManagementServiceImpl implements  CartItemManagementService
     }
 //    update Item quantity
     @Override
-    public void updateItemQuantity(Long cartItemId, int newQuantity) {
+    public void updateCartItemQuantity(Long cartItemId, int newQuantity) {
         Objects.requireNonNull(cartItemId, "cartItemId cannot be null");
         if(newQuantity<=0){
             throw new IllegalArgumentException("newQuantity must be greater than 0");
@@ -89,7 +83,13 @@ public class CartItemManagementServiceImpl implements  CartItemManagementService
         CartItem cartItem = cartItemRepository.findByCartItemId(cartItemId).orElseThrow(
                 () -> new CartItemNotFoundException(cartItemId)
         );
+        Product product = productRepository.findById(cartItem.getProductId()).orElseThrow(
+                () -> new ProductNotFoundException(cartItem.getProductId())
+        );
         if(newQuantity == cartItem.getNumber()) return;
+        else if(newQuantity > product.getQuantity()){
+            throw new InsufficientStockException(product.getId(), newQuantity,product.getQuantity());
+        }
         cartItem.changeNumber(newQuantity);
         cartItemRepository.update(cartItem);
     }
