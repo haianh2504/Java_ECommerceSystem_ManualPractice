@@ -41,6 +41,7 @@ public class CartManagementServiceImpl implements CartManagementService {
     //    clear cart
     @Override
     public void clearCart(Long cartId) {
+        Objects.requireNonNull(cartId, "cartId cannot be null");
         cartItemRepository.deleteAllByCartId(cartId);
     }
 //    check out cart - change cart status
